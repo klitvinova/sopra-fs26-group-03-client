@@ -1,128 +1,128 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #ffffff;
+	--foreground: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--background: #0a0a0a;
+		--foreground: #ededed;
+	}
 }
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+	max-width: 100vw;
+	overflow-x: hidden;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	color: var(--foreground);
+	background: var(--background);
+	font-family: Arial, Helvetica, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+	color: inherit;
+	text-decoration: none;
 }
 
 @media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+	html {
+		color-scheme: dark;
+	}
 }
 
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	background-color: rgb(41, 44, 59);
 }
 
 .register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	background-color: rgb(41, 44, 59);
 }
 
 .login-button {
-  width: 100%;
-  border-radius: 40px !important;
+	width: 100%;
+	border-radius: 40px !important;
 }
 
 .register-button {
-  width: 100%;
-  border-radius: 40px !important;
+	width: 100%;
+	border-radius: 40px !important;
 }
 
 .card-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	background-color: rgb(41, 44, 59);
 }
 
 .dashboard-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 50vh;
-  min-width: 50vh;
-  border-radius: 40px !important;
-  background-color: rgb(41, 44, 59);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 50vh;
+	min-width: 50vh;
+	border-radius: 40px !important;
+	background-color: rgb(41, 44, 59);
 }
 
 .register-form .ant-input {
-  border-radius: 40px;
-  padding: 10px 14px;
+	border-radius: 40px;
+	padding: 10px 14px;
 }
 .register-form .ant-input-password {
-  border-radius: 40px;
-  padding: 10px 14px;
+	border-radius: 40px;
+	padding: 10px 14px;
 }
 .forgot-password {
-  display: block;        /* allows alignment */
-  text-align: center;     /* right-align like your Figma */
-   text-decoration: underline;
-  font-size: 12px;       /* smaller text */
-  color: #1677ff;        /* AntD primary blue */
-  margin-top: -8px;      /* pull it closer to the password field */
-  margin-bottom: 16px;   /* spacing before the button */
-  cursor: pointer;
+	display: block; /* allows alignment */
+	text-align: center; /* right-align like your Figma */
+	text-decoration: underline;
+	font-size: 12px; /* smaller text */
+	color: #1677ff; /* AntD primary blue */
+	margin-top: -8px; /* pull it closer to the password field */
+	margin-bottom: 16px; /* spacing before the button */
+	cursor: pointer;
 }
 
 .sidebar-menu.ant-menu {
-  border: none !important;
-  background: #bfbfbf !important;
+	border: none !important;
+	background: #bfbfbf !important;
 }
 
 .sidebar-menu .ant-menu-item {
-  border-radius: 20px !important;
-  margin-bottom: 12px !important;
-  background-color: #bfbfbf !important;
-  height: 45px !important;
-  line-height: 45px !important;
-  border: 1px solid #a6a6a6 !important;
+	border-radius: 20px !important;
+	margin-bottom: 12px !important;
+	background-color: #bfbfbf !important;
+	height: 45px !important;
+	line-height: 45px !important;
+	border: 1px solid #a6a6a6 !important;
 }
 
 .sidebar-menu .ant-menu-item-selected {
-  background-color: #a6a6a6 !important; /* Darker grey for active */
-  color: #000 !important;
-  font-weight: bold;
-  border: #000;
+	background-color: #a6a6a6 !important; /* Darker grey for active */
+	color: #000 !important;
+	font-weight: bold;
+	border: #000;
 }
 
 /* .mini-calendar-card {
@@ -132,60 +132,63 @@ a {
 } */
 /* Container for the calendar (the light grey widget) */
 .platemate-mini-calendar.ant-card {
-  background-color: #bfbfbf !important; /* The grey background from the PlateMate image */
-  border-radius: 15px !important;
-  border: 1px solid #a6a6a6 !important;
+	background-color: #bfbfbf !important; /* The grey background from the PlateMate image */
+	border-radius: 15px !important;
+	border: 1px solid #a6a6a6 !important;
 }
 
 /* Ensure the nested calendar panel is transparent so the container background shows */
 .platemate-mini-calendar .ant-picker-panel,
 .platemate-mini-calendar .ant-picker-calendar,
 .platemate-mini-calendar .ant-picker-calendar-full {
-  background-color: transparent !important;
-  background: transparent !important;
-  border: none !important;
+	background: transparent !important;
+	border: none !important;
 }
 
 /* 1. Set text color to black (matching the white theme) */
 .platemate-mini-calendar .ant-picker-cell-inner {
-  color: #000000 !important;
+	color: #000000 !important;
 }
 
 /* 2. Style the Weekday labels (M T W...) */
 .platemate-mini-calendar .ant-picker-content thead th {
-  color: #333333 !important;
-  font-weight: 500 !important;
-  font-size: 13px !important;
+	color: #333333 !important;
+	font-weight: 500 !important;
+	font-size: 13px !important;
 }
 
 /* 3. Add Borders to every single date number */
 .platemate-mini-calendar .ant-picker-cell-inner {
-  border: 1px solid #a6a6a6 !important; /* Light grey border for every number */
-  border-radius: 20px !important; /* Slightly rounded corners for the borders */
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  height: 30px !important;
-  width: 30px !important;
-  margin: 2px auto !important; /* Spacing between the numbers */
+	border: 1px solid #a6a6a6 !important; /* Light grey border for every number */
+	border-radius: 20px !important; /* Slightly rounded corners for the borders */
+	display: flex !important;
+	justify-content: center !important;
+	align-items: center !important;
+	height: 30px !important;
+	width: 30px !important;
+	margin: 2px auto !important; /* Spacing between the numbers */
 }
 
 /* 4. Style the Highlight for "Today" (the dark grey circle from the PlateMate image) */
 .platemate-mini-calendar .ant-picker-cell-selected .ant-picker-cell-inner {
-  background-color: #a6a6a6 !important; /* Dark grey highlight */
-  border-color: #a6a6a6 !important; /* Ensure border matches the fill on select */
-  color: white !important; /* White text on active day */
-  border-radius: 20px !important; /* Force a circle shape for active day */
+	background-color: #a6a6a6 !important; /* Dark grey highlight */
+	border-color: #a6a6a6 !important; /* Ensure border matches the fill on select */
+	color: white !important; /* White text on active day */
+	border-radius: 20px !important; /* Force a circle shape for active day */
 }
 
 /* 5. Handle numbers outside of the current month (01-04 from image_1) */
-.platemate-mini-calendar .ant-picker-cell-in-view.ant-picker-cell-out-of-month .ant-picker-cell-inner {
-  color: #999999 !important; /* Lighter grey for previous/next month days */
-  opacity: 0.6;
+.platemate-mini-calendar
+	.ant-picker-cell-in-view.ant-picker-cell-out-of-month
+	.ant-picker-cell-inner {
+	color: #999999 !important; /* Lighter grey for previous/next month days */
+	opacity: 0.6;
 }
 
 /* Remove default blue highlight from AntD when hovering/clicking */
-.platemate-mini-calendar .ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-today) .ant-picker-cell-inner {
-  background-color: #e6e6e6 !important;
-  border-color: #bfbfbf !important;
+.platemate-mini-calendar
+	.ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-today)
+	.ant-picker-cell-inner {
+	background-color: #e6e6e6 !important;
+	border-color: #bfbfbf !important;
 }
