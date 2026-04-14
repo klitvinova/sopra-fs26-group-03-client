@@ -2,11 +2,16 @@
 
 import React, { useState } from "react";
 import { Alert, Button, Card, Form, Input } from "antd";
+import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import PageHeader from "@/components/page-header";
 
 interface CreateGroupFormValues {
 	name: string;
+}
+
+interface JoinGroupFormValues {
+	inviteCode: string;
 }
 
 interface GroupGetDTO {
@@ -17,7 +22,9 @@ interface GroupGetDTO {
 
 const GroupsPage: React.FC = () => {
 	const apiService = useApi();
+	const router = useRouter();
 	const [form] = Form.useForm<CreateGroupFormValues>();
+	const [joinForm] = Form.useForm<JoinGroupFormValues>();
 	const [successMessage, setSuccessMessage] = useState<string>("");
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +41,7 @@ const GroupsPage: React.FC = () => {
 
 			setSuccessMessage(`Group \"${createdGroup.name ?? values.name}\" was created.`);
 			form.resetFields();
+			router.push("/groups/me");
 		} catch (error) {
 			if (error instanceof Error) {
 				setErrorMessage(error.message);
@@ -45,36 +53,139 @@ const GroupsPage: React.FC = () => {
 		}
 	};
 
+	const handleJoinGroup = async (values: JoinGroupFormValues) => {
+		setErrorMessage("");
+		setSuccessMessage("");
+		setIsSubmitting(true);
+
+		try {
+			const joinedGroup = await apiService.post<GroupGetDTO>("/groups/join", {
+				inviteCode: values.inviteCode,
+			});
+
+			setSuccessMessage(`You joined the group \"${joinedGroup.name ?? "Unknown"}\".`);
+			joinForm.resetFields();
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("An unknown error occurred while joining the group.");
+			}
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
+	const handleLeaveGroup = async () => {
+		setErrorMessage("");
+		setSuccessMessage("");
+		setIsSubmitting(true);
+
+		try {
+			await apiService.delete<void>("/groups/me/members/me");
+			setSuccessMessage("You left the group.");
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("An unknown error occurred while leaving the group.");
+			}
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
 	return (
 		<div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
 			<PageHeader title="Groups" />
 			<div className="flex flex-1 items-center justify-center px-4 py-8">
-				<Card className="w-full max-w-md rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
-					<h1 className="mb-1 text-2xl font-semibold text-primary-600">Create a group</h1>
-					<p className="mb-6 text-sm text-slate-500">Enter a name and create your group.</p>
+				<div className="grid w-full max-w-5xl grid-cols-1 gap-6 md:grid-cols-2">
+					<Card className="w-full max-w-md rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
+						<h1 className="mb-1 text-2xl font-semibold text-primary-600">Create a group</h1>
+						<p className="mb-6 text-sm text-secondary-700">Enter a name and create your group.</p>
 
-					{successMessage ? <Alert className="mb-4" message={successMessage} showIcon type="success" /> : null}
-					{errorMessage ? <Alert className="mb-4" message={errorMessage} showIcon type="error" /> : null}
+						{successMessage ? (
+							<Alert className="mb-4" message={successMessage} showIcon type="success" />
+						) : null}
+						{errorMessage ? (
+							<Alert className="mb-4" message={errorMessage} showIcon type="error" />
+						) : null}
 
-					<Form form={form} layout="vertical" name="create-group" onFinish={handleCreateGroup}>
-						<Form.Item
-							label="Group name"
-							name="name"
-							rules={[
-								{ required: true, message: "Please enter a group name." },
-								{ min: 2, message: "Group name must be at least 2 characters." },
-							]}
-						>
-							<Input placeholder="My awesome group" />
-						</Form.Item>
+						<Form form={form} layout="vertical" name="create-group" onFinish={handleCreateGroup}>
+							<Form.Item
+								label="Group name"
+								name="name"
+								rules={[
+									{ required: true, message: "Please enter a group name." },
+									{ min: 2, message: "Group name must be at least 2 characters." },
+								]}
+							>
+								<Input placeholder="My awesome group" />
+							</Form.Item>
 
-						<Form.Item className="mb-0">
-							<Button className="login-button !h-11 !font-semibold" htmlType="submit" loading={isSubmitting} type="primary">
-								Create group
+							<Form.Item className="mb-0">
+								<Button
+									className="login-button !h-11 !font-semibold"
+									htmlType="submit"
+									loading={isSubmitting}
+									type="primary"
+								>
+									Create group
+								</Button>
+							</Form.Item>
+						</Form>
+					</Card>
+
+					<Card className="w-full max-w-md rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
+						<h1 className="mb-1 text-2xl font-semibold text-primary-600">Join a group</h1>
+						<p className="mb-6 text-sm text-secondary-700">
+							Enter your invite code to join an existing group.
+						</p>
+
+						{successMessage ? (
+							<Alert className="mb-4" message={successMessage} showIcon type="success" />
+						) : null}
+						{errorMessage ? (
+							<Alert className="mb-4" message={errorMessage} showIcon type="error" />
+						) : null}
+
+						<Form form={joinForm} layout="vertical" name="join-group" onFinish={handleJoinGroup}>
+							<Form.Item
+								label="Invite code"
+								name="inviteCode"
+								rules={[
+									{ required: true, message: "Please enter an invite code." },
+									{ len: 8, message: "Invite code must be exactly 8 characters." },
+								]}
+							>
+								<Input maxLength={8} placeholder="ABCDEFGH" />
+							</Form.Item>
+
+							<Form.Item className="mb-0">
+								<Button
+									className="login-button !h-11 !font-semibold"
+									htmlType="submit"
+									loading={isSubmitting}
+									type="primary"
+								>
+									Join group
+								</Button>
+							</Form.Item>
+						</Form>
+
+						<div className="mt-6 border-t border-primary-200 pt-4">
+							<p className="mb-3 text-sm text-secondary-700">Already in a group?</p>
+							<Button
+								className="register-button !h-11 !font-semibold"
+								loading={isSubmitting}
+								onClick={handleLeaveGroup}
+								type="default"
+							>
+								Leave group
 							</Button>
-						</Form.Item>
-					</Form>
-				</Card>
+						</div>
+					</Card>
+				</div>
 			</div>
 		</div>
 	);

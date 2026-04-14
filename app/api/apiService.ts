@@ -90,6 +90,7 @@ export class ApiService {
 		const url = `${this.baseURL}${endpoint}`;
 		const res = await fetch(url, {
 			method: "PUT",
+			credentials: "include",
 			headers: this.defaultHeaders,
 			body: JSON.stringify(data),
 		});
@@ -105,6 +106,7 @@ export class ApiService {
 		const url = `${this.baseURL}${endpoint}`;
 		const res = await fetch(url, {
 			method: "DELETE",
+			credentials: "include",
 			headers: this.defaultHeaders,
 		});
 		return this.processResponse<T>(res, "An error occurred while deleting the data.\n");
