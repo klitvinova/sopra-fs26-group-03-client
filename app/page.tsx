@@ -1,5 +1,6 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 import { LoginOutlined } from "@ant-design/icons";
+import { Button } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -21,14 +22,10 @@ export default function Home() {
 						<div className="text-1xl md:text-2xl font-semibold">PlateMate</div>
 					</div>
 					<nav className="flex items-center text-sm font-medium sm:text-base">
-						<button
-							className="pm-button flex items-center gap-2"
-							onClick={() => goTo("/auth/login")}
-							type="button"
-						>
+						<Button className="pm-button flex items-center gap-2" onClick={() => goTo("/auth/login")}>
 							<LoginOutlined className="text-xs sm:text-sm" />
 							Login
-						</button>
+						</Button>
 					</nav>
 				</div>
 			</header>

@@ -64,7 +64,6 @@ const Login: React.FC = () => {
 					<a className="forgot-password">Forgot password?</a>
 					<Form.Item className="mb-3">
 						<Button
-							type="primary"
 							htmlType="submit"
 							className="login-button !h-11 !font-semibold"
 						>

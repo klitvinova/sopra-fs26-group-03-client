@@ -89,7 +89,7 @@ const Dashboard: React.FC = () => {
 								style: { cursor: "pointer" },
 							})}
 						/>
-						<Button className="pm-button" onClick={handleLogout} type="primary">
+						<Button className="pm-button" onClick={handleLogout}>
 							Logout
 						</Button>
 					</>

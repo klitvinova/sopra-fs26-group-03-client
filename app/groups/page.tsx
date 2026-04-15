@@ -63,8 +63,9 @@ const GroupsPage: React.FC = () => {
 				inviteCode: values.inviteCode,
 			});
 
-			setSuccessMessage(`You joined the group \"${joinedGroup.name ?? "Unknown"}\".`);
 			joinForm.resetFields();
+			const joinedName = joinedGroup.name?.trim() || "your group";
+			router.push(`/groups/me?joined=1&groupName=${encodeURIComponent(joinedName)}`);
 		} catch (error) {
 			if (error instanceof Error) {
 				setErrorMessage(error.message);
@@ -128,7 +129,6 @@ const GroupsPage: React.FC = () => {
 									className="login-button !h-11 !font-semibold"
 									htmlType="submit"
 									loading={isSubmitting}
-									type="primary"
 								>
 									Create group
 								</Button>
@@ -158,7 +158,7 @@ const GroupsPage: React.FC = () => {
 									{ len: 8, message: "Invite code must be exactly 8 characters." },
 								]}
 							>
-								<Input maxLength={8} placeholder="ABCDEFGH" />
+								<Input maxLength={8} placeholder="ABC1EFG2" />
 							</Form.Item>
 
 							<Form.Item className="mb-0">
@@ -166,7 +166,6 @@ const GroupsPage: React.FC = () => {
 									className="login-button !h-11 !font-semibold"
 									htmlType="submit"
 									loading={isSubmitting}
-									type="primary"
 								>
 									Join group
 								</Button>
@@ -179,7 +178,6 @@ const GroupsPage: React.FC = () => {
 								className="register-button !h-11 !font-semibold"
 								loading={isSubmitting}
 								onClick={handleLeaveGroup}
-								type="default"
 							>
 								Leave group
 							</Button>

@@ -25,6 +25,17 @@ export default function GroupMePage() {
 	const [group, setGroup] = useState<GroupMeResponse | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [joinedMessage, setJoinedMessage] = useState("");
+
+	useEffect(() => {
+		if (typeof window === "undefined") {
+			return;
+		}
+		const params = new URLSearchParams(window.location.search);
+		if (params.get("joined") === "1") {
+			setJoinedMessage(`You successfully joined ${params.get("groupName") ?? "the group"}.`);
+		}
+	}, []);
 
 	useEffect(() => {
 		const fetchGroup = async () => {
@@ -54,6 +65,8 @@ export default function GroupMePage() {
 				<Card className="w-full max-w-2xl rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
 					<h1 className="mb-1 text-2xl font-semibold text-primary-600">Group information</h1>
 					<p className="mb-6 text-sm text-slate-500">Overview of the group you are currently part of.</p>
+
+					{joinedMessage ? <Alert className="mb-4" message={joinedMessage} showIcon type="success" /> : null}
 
 					{isLoading ? (
 						<div className="flex items-center justify-center py-10">

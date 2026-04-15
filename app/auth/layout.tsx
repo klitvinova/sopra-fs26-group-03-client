@@ -1,5 +1,6 @@
 "use client";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Button } from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -25,14 +26,10 @@ export default function Home({
 						<div className="text-1xl md:text-2xl font-semibold">PlateMate</div>
 					</div>
 					<nav className="flex items-center gap-3 text-sm font-medium sm:text-base">
-						<button
-							className="pm-button flex items-center gap-2"
-							onClick={() => goTo("/")}
-							type="button"
-						>
+						<Button className="pm-button flex items-center gap-2" onClick={() => goTo("/")}>
 							<ArrowLeftOutlined className="text-xs sm:text-sm" />
 							Back
-						</button>
+						</Button>
 					</nav>
 				</div>
 			</header>

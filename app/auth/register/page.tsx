@@ -84,7 +84,6 @@ const Register: React.FC = () => {
 					</Form.Item>
 					<Form.Item className="mb-0">
 						<Button
-							type="primary"
 							htmlType="submit"
 							className="register-button !h-11 !font-semibold"
 						>
