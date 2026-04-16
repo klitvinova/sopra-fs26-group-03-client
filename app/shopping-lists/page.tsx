@@ -27,8 +27,8 @@ import type {
 	ShoppingListGetDTO,
 	ShoppingListItemGetDTO,
 	ShoppingListItemPostDTO,
-	Unit,
 } from "@/types/shopping-list";
+import type { Unit } from "@/types/unit";
 
 const { Title } = Typography;
 
@@ -96,7 +96,7 @@ const ShoppingListsPage: React.FC = () => {
 			}
 			setErrorMessage("");
 			try {
-				const data = await apiService.get<ShoppingListGetDTO>("/groups/my/shopping-list");
+				const data = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
 				setShoppingList(data);
 			} catch (error) {
 				if (error instanceof Error) {
@@ -198,7 +198,7 @@ const ShoppingListsPage: React.FC = () => {
 			};
 
 			await apiService.post<ShoppingListItemGetDTO>(
-				"/groups/my/shopping-list/items",
+				"/groups/me/shopping-list/items",
 				shoppingPayload,
 			);
 			setSuccessMessage("Item added to shopping list.");
@@ -220,7 +220,7 @@ const ShoppingListsPage: React.FC = () => {
 		setErrorMessage("");
 		try {
 			return await apiService.get<ShoppingListItemGetDTO>(
-				`/groups/my/shopping-list/items/${itemId}`,
+				`/groups/me/shopping-list/items/${itemId}`,
 			);
 		} catch (error) {
 			if (error instanceof Error) {
@@ -258,7 +258,7 @@ const ShoppingListsPage: React.FC = () => {
 		setSuccessMessage("");
 		setIsUpdating(true);
 		try {
-			await apiService.put<void>(`/groups/my/shopping-list/items/${selectedItem.id}`, values);
+			await apiService.put<void>(`/groups/me/shopping-list/items/${selectedItem.id}`, values);
 			setSuccessMessage("Item updated.");
 			setIsEditOpen(false);
 			await fetchShoppingList();
@@ -283,7 +283,7 @@ const ShoppingListsPage: React.FC = () => {
 		try {
 			const payload: ItemPatchDTO = { isBought };
 			await apiService.patch<ShoppingListItemGetDTO>(
-				`/groups/my/shopping-list/items/${item.id}`,
+				`/groups/me/shopping-list/items/${item.id}`,
 				payload,
 			);
 			setShoppingList((prev) => {
@@ -318,7 +318,7 @@ const ShoppingListsPage: React.FC = () => {
 		setSuccessMessage("");
 		markItemBusy(itemId, true);
 		try {
-			await apiService.delete<void>(`/groups/my/shopping-list/items/${itemId}`);
+			await apiService.delete<void>(`/groups/me/shopping-list/items/${itemId}`);
 			setSuccessMessage("Item deleted.");
 			setShoppingList((prev) => {
 				if (!prev) {
