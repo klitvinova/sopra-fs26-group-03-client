@@ -14,7 +14,7 @@ const PantryPage: React.FC = () => {
 					Pantry
 				</Title>
 			</div>
-			jölkn
+
 			<div className="dashboard-grid">{/* Pantry content goes here. */}</div>
 		</DashboardShell>
 	);
