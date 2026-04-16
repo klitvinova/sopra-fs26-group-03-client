@@ -258,4 +258,17 @@
 		border-color: #f97316 !important;
 		color: #ffffff !important;
 	}
+
+	.dashboard-mini-calendar .ant-select-selector {
+		background-color: #ffedd5 !important;
+		border-color: #fdba74 !important;
+		color: #9a3412 !important;
+	}
+
+	.dashboard-mini-calendar .ant-select-selection-item,
+	.dashboard-mini-calendar .ant-select-selection-placeholder,
+	.dashboard-mini-calendar .ant-select-arrow,
+	.dashboard-mini-calendar .ant-select-item-option-content {
+		color: #9a3412 !important;
+	}
 }
