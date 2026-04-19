@@ -38,7 +38,7 @@ const GroupsPage: React.FC = () => {
 			try {
 				const group = await apiService.get<GroupGetDTO>("/groups/me");
 				setExistingGroup(group);
-			} catch (error) {
+			} catch {
 				setExistingGroup(null);
 			} finally {
 				setIsLoading(false);

@@ -32,7 +32,7 @@ const Dashboard: React.FC = () => {
 				try {
 					const pantryData = await apiService.get<PantryGetDTO>("/groups/me/pantry");
 					setPantry(pantryData);
-				} catch (err) {
+				} catch {
 					console.debug("No pantry found, likely not in a group yet.");
 					setPantry(null);
 				}
@@ -40,13 +40,13 @@ const Dashboard: React.FC = () => {
 				try {
 					const shoppingListData = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
 					setShoppingList(shoppingListData);
-				} catch (err) {
+				} catch {
 					console.debug("No shopping list found, likely not in a group yet.");
 					setShoppingList(null);
 				}
 
-			} catch (err) {
-				setError(err instanceof Error ? err.message : "Failed to load profile data");
+			} catch {
+				setError("Failed to load profile data");
 			} finally {
 				setIsLoading(false);
 			}
@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
 				<Title level={2} style={{ margin: 0, color: "#0f172a" }}>
 					Good morning, {user?.username ?? "Chef"}
 				</Title>
-				<Text className="text-secondary-600">Welcome to your kitchen. Here's your current status.</Text>
+				<Text className="text-secondary-600">Welcome to your kitchen. Here&apos;s your current status.</Text>
 			</div>
 
 			{error && (

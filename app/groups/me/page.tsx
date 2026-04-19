@@ -14,11 +14,22 @@ import {
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
-import DashboardShell from "@/components/dashboard-shell";
-import { Group, GroupRole } from "@/types/group";
-import { User } from "@/types/user";
+import PageHeader from "@/components/page-header";
 
-const { Text, Title } = Typography;
+interface GroupMember {
+	id?: number;
+	userId?: string;
+	username?: string;
+	name?: string;
+}
+
+interface GroupMeResponse {
+	id?: number;
+	name?: string;
+	inviteCode?: string;
+	createdAt?: string;
+	members?: GroupMember[];
+}
 
 export default function GroupMePage() {
 	const apiService = useApi();
@@ -36,14 +47,16 @@ export default function GroupMePage() {
 	const isAdmin = group?.members?.find((m) => m.userID === currentUser?.id)?.role === GroupRole.ADMIN;
 
 	useEffect(() => {
-		if (typeof window === "undefined") return;
+		if (typeof window === "undefined") {
+			return;
+		}
 		const params = new URLSearchParams(window.location.search);
 		if (params.get("joined") === "1") {
 			setJoinedMessage(`You successfully joined ${params.get("groupName") ?? "the group"}.`);
 		}
 	}, []);
 
-	const fetchData = async () => {
+	const fetchData = useCallback(async () => {
 		setIsLoading(true);
 		setErrorMessage("");
 		try {
@@ -63,11 +76,11 @@ export default function GroupMePage() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [apiService]);
 
 	useEffect(() => {
 		fetchData();
-	}, [apiService]);
+	}, [fetchData]);
 
 	const handleCopyInviteCode = () => {
 		if (group?.inviteCode) {
@@ -88,7 +101,7 @@ export default function GroupMePage() {
 			setGroup(updated);
 			setIsEditingName(false);
 			message.success("Group renamed successfully!");
-		} catch (error) {
+		} catch {
 			message.error("Failed to rename group.");
 		} finally {
 			setIsSubmitting(false);
@@ -108,7 +121,7 @@ export default function GroupMePage() {
 					const updated = await apiService.post<Group>("/groups/me/invite-code", {});
 					setGroup(updated);
 					message.success("Invite code regenerated!");
-				} catch (error) {
+				} catch {
 					message.error("Failed to regenerate code.");
 				}
 			},
@@ -148,7 +161,7 @@ export default function GroupMePage() {
 					await apiService.delete("/groups/me");
 					message.success("Group deleted.");
 					router.push("/groups");
-				} catch (error) {
+				} catch {
 					message.error("Failed to delete group.");
 				}
 			},
@@ -156,8 +169,9 @@ export default function GroupMePage() {
 	};
 
 	return (
-		<DashboardShell headerTitle="Group Management" selectedMenuKey="6">
-			<div className="flex flex-col items-center">
+		<div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
+			<PageHeader title="Group Management" />
+			<div className="flex flex-1 flex-col items-center px-4 py-8">
 				<Card className="w-full max-w-2xl rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
 					{joinedMessage ? <Alert className="mb-6" message={joinedMessage} showIcon type="success" /> : null}
 
@@ -260,11 +274,10 @@ export default function GroupMePage() {
 									{group.members?.map((member) => (
 										<div
 											key={member.userID}
-											className={`flex items-center justify-between rounded-xl border p-3 ${
-												member.userID === currentUser?.id
-													? "border-primary-300 bg-primary-50"
-													: "border-slate-100 bg-white"
-											}`}
+											className={`flex items-center justify-between rounded-xl border p-3 ${member.userID === currentUser?.id
+												? "border-primary-300 bg-primary-50"
+												: "border-slate-100 bg-white"
+												}`}
 										>
 											<div className="flex items-center gap-2">
 												<div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200">
@@ -319,7 +332,7 @@ export default function GroupMePage() {
 					)}
 				</Card>
 			</div>
-		</DashboardShell>
+		</div>
 	);
 }
 

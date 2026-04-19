@@ -6,7 +6,6 @@ import {
 	CalendarOutlined,
 	FileTextOutlined,
 	LeftOutlined,
-	ReadOutlined,
 	RightOutlined,
 	ShoppingOutlined,
 } from "@ant-design/icons";
@@ -36,7 +35,6 @@ const menuRoutes: Record<string, string> = {
 	"5": "/meal-plan",
 };
 
-const menuItems: MenuItem[] = [
 	{ key: "1", icon: <AppstoreOutlined />, label: "Dashboard" },
 	{ key: "2", icon: <ShoppingOutlined />, label: "Pantry" },
 	{ key: "3", icon: <FileTextOutlined />, label: "Shopping List" },
