@@ -16,20 +16,7 @@ import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import PageHeader from "@/components/page-header";
 
-interface GroupMember {
-	id?: number;
-	userId?: string;
-	username?: string;
-	name?: string;
-}
-
-interface GroupMeResponse {
-	id?: number;
-	name?: string;
-	inviteCode?: string;
-	createdAt?: string;
-	members?: GroupMember[];
-}
+const { Text, Title } = Typography;
 
 export default function GroupMePage() {
 	const apiService = useApi();
