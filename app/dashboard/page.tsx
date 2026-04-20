@@ -11,8 +11,8 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
-			<div style={{ marginBottom: "32px" }}>
-				<Title level={2} style={{ margin: 0, color: "#0f172a" }}>
+			<div className="mb-8">
+				<Title level={2} className="!m-0 !text-slate-900">
 					Good morning, {userName}
 				</Title>
 			</div>
