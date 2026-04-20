@@ -69,6 +69,18 @@ reason).
 
 ## Contributions Week 5 - [Begin Date] to [End Date]
 
+TODO:
+- API (Marc)
+- Test Realtime (Karina)
+- Ingredient Management / Autocomplete (Marc)
+- Meal Planning (Karina)
+- Test & Improve (Both)
+- Check Mail in Register (Marc)
+- Add common recipes (Karina)
+- Edit Dashboard (Karina)
+- Redesign Lists (Marc)
+- Delete Calendar (Both)
+
 _Continue with the same table format as above._
 
 ---
