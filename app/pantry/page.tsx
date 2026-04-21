@@ -1,27 +1,5 @@
 "use client";
 
-/* Backend Code
-@GetMapping("/groups/me/pantry")
-@ResponseStatus(HttpStatus.OK)
-@ResponseBody
-public PantryGetDTO getPantry(Authentication auth) {
-	Group group = groupService.getGroupOfUser(auth.getName());
-	Pantry pantry = pantryService.getPantryByGroupId(group.getId());
-	return DTOMapper.INSTANCE.convertEntityToPantryGetDTO(pantry);
-}
-
-@PostMapping("/groups/me/pantry/items")
-@ResponseStatus(HttpStatus.CREATED)
-@ResponseBody
-public PantryItemGetDTO addItem(Authentication auth, @RequestBody PantryItemPostDTO dto) {
-	Group group = groupService.getGroupOfUser(auth.getName());
-	Pantry pantry = pantryService.getPantryByGroupId(group.getId());
-	PantryItem item = pantryService.addItemToPantry(
-		pantry.getId(), dto.getIngredientId(), dto.getQuantity());
-	return DTOMapper.INSTANCE.convertEntityToPantryItemGetDTO(item);
-}
-*/
-
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	AutoComplete,
@@ -31,6 +9,7 @@ import {
 	Input,
 	InputNumber,
 	Modal,
+	List,
 	Popconfirm,
 	Space,
 	Spin,
@@ -57,6 +36,14 @@ interface IngredientGetDTO {
 	ingredientName?: string;
 	unit?: Unit;
 	ingredientDescription?: string;
+}
+
+interface AutoDetectedIngredientGetDTO {
+	id?: number;
+	ingredientName?: string;
+	ingredientDescription?: string;
+	unit?: Unit;
+	quantity?: number;
 }
 
 interface IngredientPostDTO {
@@ -106,6 +93,13 @@ const PantryPage: React.FC = () => {
 	const [successMessage, setSuccessMessage] = useState("");
 	const [selectedItem, setSelectedItem] = useState<PantryItemGetDTO | null>(null);
 	const [isEditOpen, setIsEditOpen] = useState(false);
+	const [isDetectOpen, setIsDetectOpen] = useState(false);
+	const [selectedImage, setSelectedImage] = useState<File | null>(null);
+	const [detectedIngredients, setDetectedIngredients] = useState<AutoDetectedIngredientGetDTO[]>(
+		[],
+	);
+	const [isDetecting, setIsDetecting] = useState(false);
+	const [isAddingDetected, setIsAddingDetected] = useState(false);
 
 	const items = useMemo(() => getItemsFromList(pantry), [pantry]);
 
@@ -317,6 +311,77 @@ const PantryPage: React.FC = () => {
 		}
 	};
 
+	const resetDetectModal = () => {
+		setIsDetectOpen(false);
+		setSelectedImage(null);
+		setDetectedIngredients([]);
+	};
+
+	const handleDetectIngredients = async () => {
+		if (!selectedImage) {
+			setErrorMessage("Please choose an image first.");
+			return;
+		}
+		setErrorMessage("");
+		setSuccessMessage("");
+		setIsDetecting(true);
+		try {
+			const formData = new FormData();
+			formData.append("file", selectedImage);
+			const detected = await apiService.postFormData<AutoDetectedIngredientGetDTO[]>(
+				"/shoppings-list/auto-detect",
+				formData,
+			);
+			setDetectedIngredients(detected ?? []);
+			if (!detected?.length) {
+				setSuccessMessage("No ingredients were detected in the image.");
+			}
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not detect ingredients from the image.");
+			}
+		} finally {
+			setIsDetecting(false);
+		}
+	};
+
+	const handleAddDetectedIngredients = async () => {
+		const ingredientsWithId = detectedIngredients.filter((ingredient) => ingredient.id);
+		if (!ingredientsWithId.length) {
+			setErrorMessage("Detected ingredients are missing ids and cannot be added.");
+			return;
+		}
+		setErrorMessage("");
+		setSuccessMessage("");
+		setIsAddingDetected(true);
+		try {
+			await Promise.all(
+				ingredientsWithId.map((ingredient) =>
+					apiService.post<PantryItemGetDTO>("/groups/me/pantry/items", {
+						ingredientId: ingredient.id,
+						quantity: ingredient.quantity && ingredient.quantity > 0 ? ingredient.quantity : 1,
+					}),
+				),
+			);
+			setSuccessMessage(
+				`Added ${ingredientsWithId.length} detected ingredient${ingredientsWithId.length === 1 ? "" : "s"} to pantry.`,
+			);
+			resetDetectModal();
+			await fetchIngredients();
+			await fetchPantry(false);
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not add detected ingredients to pantry.");
+			}
+		} finally {
+			setIsAddingDetected(false);
+		}
+	};
+
 	const columns: TableColumnsType<PantryItemGetDTO> = [
 		{
 			title: "Ingredient",
@@ -396,9 +461,14 @@ const PantryPage: React.FC = () => {
 				<Title level={2} className="!m-0 !text-slate-900">
 					Pantry
 				</Title>
-				<Button className="pm-button" onClick={() => fetchPantry(true)}>
-					Refresh
-				</Button>
+				<Space>
+					<Button className="pm-button" onClick={() => setIsDetectOpen(true)}>
+						Detect from image
+					</Button>
+					<Button className="pm-button" onClick={() => fetchPantry(true)}>
+						Refresh
+					</Button>
+				</Space>
 			</div>
 
 			{successMessage ? (
@@ -431,14 +501,7 @@ const PantryPage: React.FC = () => {
 							placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
 						/>
 					</Form.Item>
-					<Form.Item
-						label="Description"
-						name="ingredientDescription"
-						rules={[
-							{ required: true, message: "Required" },
-							{ whitespace: true, message: "Required" },
-						]}
-					>
+					<Form.Item label="Description" name="ingredientDescription">
 						<Input placeholder="Short ingredient description" />
 					</Form.Item>
 					<Form.Item
@@ -476,6 +539,83 @@ const PantryPage: React.FC = () => {
 					/>
 				)}
 			</Card>
+
+			<Modal
+				title="Detect ingredients from image"
+				open={isDetectOpen}
+				onCancel={resetDetectModal}
+				footer={
+					detectedIngredients.length > 0
+						? [
+								<Button key="cancel" onClick={resetDetectModal}>
+									Cancel
+								</Button>,
+								<Button key="detect" onClick={handleDetectIngredients} loading={isDetecting}>
+									Detect again
+								</Button>,
+								<Button
+									key="add"
+									type="primary"
+									className="pm-button"
+									onClick={handleAddDetectedIngredients}
+									loading={isAddingDetected}
+								>
+									Add detected ingredients
+								</Button>,
+							]
+						: [
+								<Button key="cancel" onClick={resetDetectModal}>
+									Cancel
+								</Button>,
+								<Button
+									key="detect"
+									type="primary"
+									className="pm-button"
+									onClick={handleDetectIngredients}
+									loading={isDetecting}
+									disabled={!selectedImage}
+								>
+									Detect ingredients
+								</Button>,
+							]
+				}
+			>
+				<div className="space-y-4">
+					<Input
+						type="file"
+						accept="image/*"
+						onChange={(event) => {
+							const file = event.target.files?.[0] ?? null;
+							setSelectedImage(file);
+							setDetectedIngredients([]);
+						}}
+					/>
+					{detectedIngredients.length > 0 ? (
+						<List
+							size="small"
+							header={<span>Detected ingredients</span>}
+							dataSource={detectedIngredients}
+							renderItem={(ingredient) => (
+								<List.Item>
+									<div className="w-full">
+										<div className="font-medium">
+											{ingredient.ingredientName ?? `Ingredient #${ingredient.id ?? "-"}`}
+										</div>
+										<div className="text-sm text-slate-600">
+											Quantity: {ingredient.quantity ?? 1} | Unit: {ingredient.unit ?? "-"}
+										</div>
+										{ingredient.ingredientDescription ? (
+											<div className="text-sm text-slate-500">
+												{ingredient.ingredientDescription}
+											</div>
+										) : null}
+									</div>
+								</List.Item>
+							)}
+						/>
+					) : null}
+				</div>
+			</Modal>
 
 			<Modal
 				title="Edit item"
