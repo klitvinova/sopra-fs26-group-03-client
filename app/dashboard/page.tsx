@@ -70,9 +70,9 @@ const Dashboard: React.FC = () => {
 
 	return (
 		<DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
-			<div style={{ marginBottom: "32px" }}>
-				<Title level={2} style={{ margin: 0, color: "#0f172a" }}>
-					Good morning, {user?.username ?? "Chef"}
+			<div className="mb-8">
+				<Title level={2} className="!m-0 !text-slate-900">
+					Good morning, {userName}
 				</Title>
 				<Text className="text-secondary-600">Welcome to your kitchen. Here&apos;s your current status.</Text>
 			</div>

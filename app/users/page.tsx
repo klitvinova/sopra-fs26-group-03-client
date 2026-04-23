@@ -86,7 +86,6 @@ const Dashboard: React.FC = () => {
 							rowKey="id"
 							onRow={(row) => ({
 								onClick: () => router.push(`/users/${row.id}`),
-								style: { cursor: "pointer" },
 							})}
 						/>
 						<Button className="pm-button" onClick={handleLogout}>

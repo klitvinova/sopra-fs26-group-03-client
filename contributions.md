@@ -61,23 +61,51 @@ reason).
 |                    | 15.04.2026 | [PR34](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/34) | Basic Frontend implemantation to add, edit, join, delete groups | Necessary functionality for group part of project 
 |                    | 16.04.2026 | Commit [c855426](https://github.com/klitvinova/sopra-fs26-group-03-server/commit/c8554260cced266b3f240ed498df4f3f1dad554f) | add backend to add ingredients | needed for shopping lists & pantry
 |                    | 15.04.2026 | [PR34](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/35) | Basic Frontend implemantation for shopping lists & pantry | Core features of our app -> first prototype 
-| **[@klitvinova]** | [date] | [Link to Commit 1] | [Brief description of the task] | [Why this contribution is relevant] |
-|                    | [date] | [Link to Commit 2] | [Brief description of the task] | [Why this contribution is relevant] |
+| **[@klitvinova]** | 18.04.2026 | [d8d7af3](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/64/changes/d8d7af30e5be11a1b2c6a065191db00a1455587b) | added tests for the Pantry and Shopping list backend | Covers key functionality with tests |
+|                    | 19.04.2026 | [e468def](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/36/changes/e468def9b03e2f996ca8e6c94d58499dce19dd97) | updated group management to account for Admin and User role distinction | Ensure smooth management of group deletion and user management |
+|                    | 19.04.2026 | [8c4a8fb](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/36/changes/8c4a8fb2aadcd7d0e67c11ecf58f61d53b1376fe)) | updated frontend for the updated planned app scope | Re-positioning the app for the Lists management rather than Recipe focus |
 
 ---
 
-## Contributions Week 5 - [Begin Date] to [End Date]
+## Contributions Week 5 - 20.04.2026 to 26.04.2026
 
-_Continue with the same table format as above._
+TODO:
+- [ ] Test Realtime (Karina)
+- [ ] Add common recipes (Karina)
+- [ ] Edit Dashboard (Karina)
+- [ ] Delete Calendar (Both)
+
+
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@MarcHonegger]** | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+| **[@klitvinova]** | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
 
 ---
 
 ## Contributions Week 6 - [Begin Date] to [End Date]
-
-_Continue with the same table format as above._
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@MarcHonegger]** | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+| **[@klitvinova]** | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
 
 ---
 
 ## Contributions Week 7 - [Begin Date] to [End Date]
 
-_Continue with the same table format as above._
+| **Student**        | **Date** | **Link to Commit** | **Description**                 | **Relevance**                       |
+| ------------------ | -------- | ------------------ | ------------------------------- | ----------------------------------- |
+| **[@MarcHonegger]** | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+| **[@klitvinova]** | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why
+|                    | xx.xx.xxxx | commits | What | Why

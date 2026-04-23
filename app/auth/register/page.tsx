@@ -63,7 +63,13 @@ const Register: React.FC = () => {
 					<Form.Item
 						name="email"
 						// label="E-mail"
-						rules={[{ required: true, message: "Please input your e-mail!" }]}
+						rules={[
+							{ required: true, message: "Please input your e-mail!" },
+							{
+								pattern: /\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*./,
+								message: "Invalid email format!",
+							},
+						]}
 					>
 						<Input placeholder="E-mail" />
 					</Form.Item>
@@ -83,10 +89,7 @@ const Register: React.FC = () => {
 						<Input.Password placeholder="Password" />
 					</Form.Item>
 					<Form.Item className="mb-0">
-						<Button
-							htmlType="submit"
-							className="register-button !h-11 !font-semibold"
-						>
+						<Button htmlType="submit" className="register-button !h-11 !font-semibold">
 							Sign Up
 						</Button>
 					</Form.Item>

@@ -397,7 +397,7 @@ const PantryPage: React.FC = () => {
 	return (
 		<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
 			<div className="mb-8 flex items-center justify-between gap-4">
-				<Title level={2} style={{ margin: 0, color: "#0f172a" }}>
+				<Title level={2} className="!m-0 !text-slate-900">
 					Pantry
 				</Title>
 				<Button className="pm-button" onClick={() => fetchPantry(true)}>
@@ -417,7 +417,7 @@ const PantryPage: React.FC = () => {
 			) : null}
 
 			<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
-				<Title level={4} style={{ marginTop: 0 }}>
+				<Title level={4} className="!mt-0">
 					Add item to pantry
 				</Title>
 				<Form form={addForm} layout="vertical" onFinish={handleAddItem}>
@@ -464,7 +464,7 @@ const PantryPage: React.FC = () => {
 			</Card>
 
 			<Card className="rounded-3xl border border-primary-200 bg-white/90">
-				<Title level={4} style={{ marginTop: 0 }}>
+				<Title level={4} className="!mt-0">
 					Current items
 				</Title>
 				{isLoadingList ? (
