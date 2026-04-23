@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	AutoComplete,
 	Button,
@@ -18,6 +18,7 @@ import {
 	Typography,
 	Select,
 } from "antd";
+import { PlusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
@@ -29,31 +30,9 @@ import type {
 	ShoppingListItemPostDTO,
 } from "@/types/shopping-list";
 import type { Unit } from "@/types/unit";
-import { IngredientCategory } from "@/types/ingredientCategory";
+import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/ingredientCategory";
 
 const { Title } = Typography;
-
-interface IngredientGetDTO {
-	id?: number;
-	ingredientName?: string;
-	ingredientDescription?: string;
-	unit?: Unit;
-	category?: IngredientCategory;
-}
-
-interface IngredientPostDTO {
-	ingredientName: string;
-	ingredientDescription: string;
-	unit: Unit;
-	category?: IngredientCategory;
-}
-
-interface AddItemFormValues {
-	ingredientName: string;
-	ingredientDescription: string;
-	quantity: number;
-	unit: Unit;
-}
 
 const unitOptions: Array<{ label: string; value: Unit }> = [
 	{ label: "g", value: "GRAM" },
@@ -438,15 +417,36 @@ const ShoppingListsPage: React.FC = () => {
 		opt.label.toLowerCase().includes(search.toLowerCase()),
 	);
 
+	const [addFormVisible, setAddFormVisible] = useState(false);
+
+	const handleAddFormVisibleChange = () => {
+		setAddFormVisible(!addFormVisible);
+	};
+
 	return (
 		<DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
 			<div className="mb-8 flex items-center justify-between gap-4">
 				<Title level={2} className="!m-0 !text-slate-900">
 					Shopping Lists
 				</Title>
-				<Button className="pm-button" onClick={() => fetchShoppingList(true)}>
-					Refresh
-				</Button>
+				<div className={"flex gap-2"}>
+					<Button className="pm-button" onClick={handleAddFormVisibleChange}>
+						{addFormVisible ? (
+							<div className={"flex items-center gap-2"}>
+								<PlusCircleOutlined />
+								Close Form
+							</div>
+						) : (
+							<div className={"flex items-center gap-2"}>
+								<CloseCircleOutlined />
+								Add Item
+							</div>
+						)}
+					</Button>
+					<Button className="pm-button" onClick={() => fetchShoppingList(true)}>
+						Refresh
+					</Button>
+				</div>
 			</div>
 
 			{successMessage ? (
@@ -460,49 +460,51 @@ const ShoppingListsPage: React.FC = () => {
 				</div>
 			) : null}
 
-			<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
-				<Title level={4} className="!mt-0">
-					Add item to database and shopping list
-				</Title>
-				<Form form={addForm} layout="vertical" onFinish={handleAddItem}>
-					<Form.Item
-						label="Name"
-						name="ingredientName"
-						rules={[
-							{ required: true, message: "Required" },
-							{ whitespace: true, message: "Required" },
-						]}
-					>
-						<AutoComplete
-							options={filteredOptions}
-							onSelect={(value: string) => handleIngredientSelect(value)}
-							onChange={(value: string) => setSearch(value)}
-							placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
-						/>
-					</Form.Item>
-					<Form.Item label="Description" name="ingredientDescription">
-						<Input placeholder="Short ingredient description" />
-					</Form.Item>
-					<Form.Item
-						label="Quantity"
-						name="quantity"
-						rules={[{ required: true, message: "Required" }]}
-					>
-						<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
-					</Form.Item>
-					<Form.Item label="Category" name="ingredientCategory">
-						<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
-					</Form.Item>
-					<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
-						<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
-					</Form.Item>
-					<Form.Item>
-						<Button className="pm-button" htmlType="submit" loading={isAdding}>
-							Save entry
-						</Button>
-					</Form.Item>
-				</Form>
-			</Card>
+			{addFormVisible && (
+				<Card className="rounded-3xl border border-primary-200 bg-white/90 addFormVisible:bg-black">
+					<Title level={4} className="!mt-0">
+						Add item to database and shopping list
+					</Title>
+					<Form form={addForm} layout="vertical" onFinish={handleAddItem}>
+						<Form.Item
+							label="Name"
+							name="ingredientName"
+							rules={[
+								{ required: true, message: "Required" },
+								{ whitespace: true, message: "Required" },
+							]}
+						>
+							<AutoComplete
+								options={filteredOptions}
+								onSelect={(value: string) => handleIngredientSelect(value)}
+								onChange={(value: string) => setSearch(value)}
+								placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
+							/>
+						</Form.Item>
+						<Form.Item label="Description" name="ingredientDescription">
+							<Input placeholder="Short ingredient description" />
+						</Form.Item>
+						<Form.Item
+							label="Quantity"
+							name="quantity"
+							rules={[{ required: true, message: "Required" }]}
+						>
+							<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
+						</Form.Item>
+						<Form.Item label="Category" name="ingredientCategory">
+							<Input placeholder="e.g. Vegetables" />
+						</Form.Item>
+						<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
+							<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
+						</Form.Item>
+						<Form.Item>
+							<Button className="pm-button" htmlType="submit" loading={isAdding}>
+								Save entry
+							</Button>
+						</Form.Item>
+					</Form>
+				</Card>
+			)}
 
 			<Card className="rounded-3xl border border-primary-200 bg-white/90">
 				<Title level={4} className="!mt-0">
