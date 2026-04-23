@@ -390,6 +390,12 @@ const PantryPage: React.FC = () => {
 		}
 	};
 
+	const [search, setSearch] = useState("");
+
+	const filteredOptions = ingredientOptions.filter((opt) =>
+		opt.label.toLowerCase().includes(search.toLowerCase()),
+	);
+
 	return (
 		<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
 			<div className="mb-8 flex items-center justify-between gap-4">
@@ -426,8 +432,9 @@ const PantryPage: React.FC = () => {
 						]}
 					>
 						<AutoComplete
-							options={ingredientOptions}
-							onSelect={handleIngredientSelect}
+							options={filteredOptions}
+							onSelect={(value: string) => handleIngredientSelect(value)}
+							onChange={(value: string) => setSearch(value)}
 							placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
 						/>
 					</Form.Item>
