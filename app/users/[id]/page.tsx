@@ -11,13 +11,13 @@
 import React from "react";
 
 const Profile: React.FC = () => {
-	return (
-		<div className="card-container">
-			<p>
-				<strong>SampleUser</strong>
-			</p>
-		</div>
-	);
+  return (
+    <div className="card-container">
+      <p>
+        <strong>SampleUser</strong>
+      </p>
+    </div>
+  );
 };
 
 export default Profile;

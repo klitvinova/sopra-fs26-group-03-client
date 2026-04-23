@@ -14,88 +14,88 @@ import type { TableProps } from "antd"; // antd component library allows imports
 
 // Columns for the antd table of User objects
 const columns: TableProps<User>["columns"] = [
-	{
-		title: "Username",
-		dataIndex: "username",
-		key: "username",
-	},
-	{
-		title: "Name",
-		dataIndex: "name",
-		key: "name",
-	},
-	{
-		title: "Id",
-		dataIndex: "id",
-		key: "id",
-	},
+  {
+    title: "Username",
+    dataIndex: "username",
+    key: "username",
+  },
+  {
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "Id",
+    dataIndex: "id",
+    key: "id",
+  },
 ];
 
 const Dashboard: React.FC = () => {
-	const router = useRouter();
-	const apiService = useApi();
-	const [users, setUsers] = useState<User[] | null>(null);
-	// useLocalStorage hook example use
-	// The hook returns an object with the value and two functions
-	// Simply choose what you need from the hook:
-	const {
-		// value: token, // is commented out because we dont need to know the token value for logout
-		// set: setToken, // is commented out because we dont need to set or update the token value
-		clear: clearToken, // all we need in this scenario is a method to clear the token
-	} = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
+  const router = useRouter();
+  const apiService = useApi();
+  const [users, setUsers] = useState<User[] | null>(null);
+  // useLocalStorage hook example use
+  // The hook returns an object with the value and two functions
+  // Simply choose what you need from the hook:
+  const {
+    // value: token, // is commented out because we dont need to know the token value for logout
+    // set: setToken, // is commented out because we dont need to set or update the token value
+    clear: clearToken, // all we need in this scenario is a method to clear the token
+  } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
 
-	const handleLogout = (): void => {
-		// Clear token using the returned function 'clear' from the hook
-		clearToken();
-		router.push("/login");
-	};
+  const handleLogout = (): void => {
+    // Clear token using the returned function 'clear' from the hook
+    clearToken();
+    router.push("/login");
+  };
 
-	useEffect(() => {
-		const fetchUsers = async () => {
-			try {
-				// apiService.get<User[]> returns the parsed JSON object directly,
-				// thus we can simply assign it to our users variable.
-				const users: User[] = await apiService.get<User[]>("/users");
-				setUsers(users);
-				console.log("Fetched users:", users);
-			} catch (error) {
-				if (error instanceof Error) {
-					alert(`Something went wrong while fetching users:\n${error.message}`);
-				} else {
-					console.error("An unknown error occurred while fetching users.");
-				}
-			}
-		};
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        // apiService.get<User[]> returns the parsed JSON object directly,
+        // thus we can simply assign it to our users variable.
+        const users: User[] = await apiService.get<User[]>("/users");
+        setUsers(users);
+        console.log("Fetched users:", users);
+      } catch (error) {
+        if (error instanceof Error) {
+          alert(`Something went wrong while fetching users:\n${error.message}`);
+        } else {
+          console.error("An unknown error occurred while fetching users.");
+        }
+      }
+    };
 
-		fetchUsers();
-	}, [apiService]);
+    fetchUsers();
+  }, [apiService]);
 
-	return (
-		<div className="card-container">
-			<Card
-				title="Get all users from secure endpoint:"
-				loading={!users}
-				className="dashboard-container"
-			>
-				{users && (
-					<>
-						{/* antd Table: pass the columns and data, plus a rowKey for stable row identity */}
-						<Table<User>
-							columns={columns}
-							dataSource={users}
-							rowKey="id"
-							onRow={(row) => ({
-								onClick: () => router.push(`/users/${row.id}`),
-							})}
-						/>
-						<Button className="pm-button" onClick={handleLogout}>
-							Logout
-						</Button>
-					</>
-				)}
-			</Card>
-		</div>
-	);
+  return (
+    <div className="card-container">
+      <Card
+        title="Get all users from secure endpoint:"
+        loading={!users}
+        className="dashboard-container"
+      >
+        {users && (
+          <>
+            {/* antd Table: pass the columns and data, plus a rowKey for stable row identity */}
+            <Table<User>
+              columns={columns}
+              dataSource={users}
+              rowKey="id"
+              onRow={(row) => ({
+                onClick: () => router.push(`/users/${row.id}`),
+              })}
+            />
+            <Button className="pm-button" onClick={handleLogout}>
+              Logout
+            </Button>
+          </>
+        )}
+      </Card>
+    </div>
+  );
 };
 
 export default Dashboard;
