@@ -29,6 +29,7 @@ import type {
 	ShoppingListItemPostDTO,
 } from "@/types/shopping-list";
 import type { Unit } from "@/types/unit";
+import { IngredientCategory } from "@/types/ingredientCategory";
 
 const { Title } = Typography;
 
@@ -37,12 +38,14 @@ interface IngredientGetDTO {
 	ingredientName?: string;
 	ingredientDescription?: string;
 	unit?: Unit;
+	category?: IngredientCategory;
 }
 
 interface IngredientPostDTO {
 	ingredientName: string;
 	ingredientDescription: string;
 	unit: Unit;
+	category?: IngredientCategory;
 }
 
 interface AddItemFormValues {
@@ -478,6 +481,9 @@ const ShoppingListsPage: React.FC = () => {
 						name="quantity"
 						rules={[{ required: true, message: "Required" }]}
 					>
+						<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
+					</Form.Item>
+					<Form.Item label="Category" name="ingredientCategory">
 						<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
 					</Form.Item>
 					<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
