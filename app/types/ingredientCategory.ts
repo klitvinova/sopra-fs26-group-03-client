@@ -1,0 +1,15 @@
+export type IngredientCategory =
+	| "VEGETABLE"
+	| "FRUIT"
+	| "MEAT"
+	| "FISH"
+	| "DAIRY"
+	| "EGGS"
+	| "PLANT_PROTEIN"
+	| "GRAIN"
+	| "BAKERY"
+	| "BAKING"
+	| "HERB"
+	| "SPICE"
+	| "OIL"
+	| "CONDIMENT";
