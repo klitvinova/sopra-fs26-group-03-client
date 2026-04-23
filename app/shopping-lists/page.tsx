@@ -94,31 +94,33 @@ const ShoppingListsPage: React.FC = () => {
 
   const items = useMemo(() => getItemsFromList(shoppingList), [shoppingList]);
 
-  const fetchShoppingList = useCallback(
-    async (showLoader = true) => {
-      if (showLoader) {
-        setIsLoadingList(true);
-      }
-      setErrorMessage("");
-      try {
-        const data = await apiService.get<ShoppingListGetDTO>(
-          "/groups/me/shopping-list",
-        );
-        setShoppingList(data);
-      } catch (error) {
-        if (error instanceof Error) {
-          setErrorMessage(error.message);
-        } else {
-          setErrorMessage("Could not load the shopping list.");
-        }
-      } finally {
-        if (showLoader) {
-          setIsLoadingList(false);
-        }
-      }
-    },
-    [apiService],
-  );
+	const fetchShoppingList = useCallback(
+		async (showLoader = true) => {
+			if (showLoader) {
+				setIsLoadingList(true);
+			}
+			setErrorMessage("");
+			try {
+				const data = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
+				setShoppingList(data);
+			} catch (error) {
+				// If status is 404, it likely means no group, which is an expected "Individual" state now.
+				if (error && typeof error === "object" && "status" in error && error.status === 404) {
+					console.debug("No shopping list found - user likely not in a group.");
+					setShoppingList(null);
+				} else if (error instanceof Error) {
+					setErrorMessage(error.message);
+				} else {
+					setErrorMessage("Could not load the shopping list.");
+				}
+			} finally {
+				if (showLoader) {
+					setIsLoadingList(false);
+				}
+			}
+		},
+		[apiService],
+	);
 
   const fetchIngredients = useCallback(async () => {
     setIsLoadingIngredients(true);

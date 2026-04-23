@@ -21,55 +21,68 @@ import {
 } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
-import { MealPlan } from "@/types/meal-plan";
-import dayjs from "dayjs";
-import { useRouter } from "next/navigation";
+import { User } from "@/types/user";
+import { PantryGetDTO } from "@/types/pantry";
+import { ShoppingListGetDTO } from "@/types/shopping-list";
 
 const { Title, Text, Paragraph } = Typography;
 
 const Dashboard: React.FC = () => {
-  const api = useApi();
-  const router = useRouter();
-  const [todayMeals, setTodayMeals] = useState<MealPlan[]>([]);
-  const [loading, setLoading] = useState(true);
-  const userName = "PlateMate User"; // In a real app, this would come from auth context
+	const apiService = useApi();
+	const [user, setUser] = useState<User | null>(null);
+	const [pantry, setPantry] = useState<PantryGetDTO | null>(null);
+	const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTodayMeals = async () => {
-      try {
-        const today = dayjs().format("YYYY-MM-DD");
-        const data = await api.get<MealPlan[]>(
-          `/meal-plans?startDate=${today}&endDate=${today}`,
-        );
-        setTodayMeals(data);
-      } catch (error) {
-        console.error("Failed to fetch today's meals", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTodayMeals();
-  }, [api]);
+	useEffect(() => {
+		const fetchDashboardData = async () => {
+			setIsLoading(true);
+			setError(null);
+			try {
+				// Fetch user separately as it's core to the identity
+				const userData = await apiService.get<User>("/users/me");
+				setUser(userData);
 
-  const getMealIcon = (type: string) => {
-    switch (type) {
-      case "BREAKFAST":
-        return <CoffeeOutlined className="text-orange-400" />;
-      case "LUNCH":
-        return (
-          <Tag
-            color="blue"
-            className="border-none bg-blue-50 text-blue-500 font-bold"
-          >
-            Lunch
-          </Tag>
-        );
-      case "DINNER":
-        return <FireOutlined className="text-red-400" />;
-      default:
-        return <StarOutlined className="text-yellow-400" />;
-    }
-  };
+				// Fetch group-dependent data, but handle "not in group" (404) gracefully
+				try {
+					const pantryData = await apiService.get<PantryGetDTO>("/groups/me/pantry");
+					setPantry(pantryData);
+				} catch {
+					console.debug("No pantry found, likely not in a group yet.");
+					setPantry(null);
+				}
+
+				try {
+					const shoppingListData = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
+					setShoppingList(shoppingListData);
+				} catch {
+					console.debug("No shopping list found, likely not in a group yet.");
+					setShoppingList(null);
+				}
+
+			} catch {
+				setError("Failed to load profile data");
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		fetchDashboardData();
+	}, [apiService]);
+
+	const pantryItemCount = pantry?.items?.length ?? 0;
+	const shoppingListItemCount = (shoppingList?.items ?? shoppingList?.shoppingListItems ?? []).filter(item => !item.isBought).length;
+
+	if (isLoading) {
+		return (
+			<DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
+				<div className="flex items-center justify-center py-20">
+					<Spin size="large" tip="Preparing your kitchen dashboard..." />
+				</div>
+			</DashboardShell>
+		);
+	}
 
   return (
     <DashboardShell headerTitle="Dashboard" selectedMenuKey="1">

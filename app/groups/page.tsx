@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Alert, Button, Card, Form, Input } from "antd";
+import { Alert, Button, Card, Form, Input, Spin } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import PageHeader from "@/components/page-header";
@@ -21,13 +22,30 @@ interface GroupGetDTO {
 }
 
 const GroupsPage: React.FC = () => {
-  const apiService = useApi();
-  const router = useRouter();
-  const [form] = Form.useForm<CreateGroupFormValues>();
-  const [joinForm] = Form.useForm<JoinGroupFormValues>();
-  const [successMessage, setSuccessMessage] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+	const apiService = useApi();
+	const router = useRouter();
+	const [form] = Form.useForm<CreateGroupFormValues>();
+	const [joinForm] = Form.useForm<JoinGroupFormValues>();
+	const [successMessage, setSuccessMessage] = useState<string>("");
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [existingGroup, setExistingGroup] = useState<GroupGetDTO | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+
+	React.useEffect(() => {
+		const checkMembership = async () => {
+			setIsLoading(true);
+			try {
+				const group = await apiService.get<GroupGetDTO>("/groups/me");
+				setExistingGroup(group);
+			} catch {
+				setExistingGroup(null);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+		checkMembership();
+	}, [apiService]);
 
   const handleCreateGroup = async (values: CreateGroupFormValues) => {
     setErrorMessage("");
@@ -81,24 +99,44 @@ const GroupsPage: React.FC = () => {
     }
   };
 
-  const handleLeaveGroup = async () => {
-    setErrorMessage("");
-    setSuccessMessage("");
-    setIsSubmitting(true);
+	if (isLoading) {
+		return (
+			<div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
+				<PageHeader title="Groups" />
+				<div className="flex flex-1 items-center justify-center">
+					<Spin size="large" />
+				</div>
+			</div>
+		);
+	}
 
-    try {
-      await apiService.delete<void>("/groups/me/members/me");
-      setSuccessMessage("You left the group.");
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("An unknown error occurred while leaving the group.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+	if (existingGroup) {
+		return (
+			<div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
+				<PageHeader title="Groups" />
+				<div className="flex flex-1 items-center justify-center px-4 py-8">
+					<Card className="w-full max-w-md rounded-[2rem] border border-primary-500/20 bg-white/90 p-8 text-center shadow-xl backdrop-blur">
+						<div className="mb-6 flex justify-center">
+							<div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-100">
+								<InfoCircleOutlined className="text-3xl text-primary-600" />
+							</div>
+						</div>
+						<h1 className="mb-2 text-2xl font-semibold text-primary-600">Already in a group</h1>
+						<p className="mb-8 text-secondary-600">
+							You are currently a member of <span className="font-bold text-slate-900">{existingGroup.name}</span>.
+							Leave your current group if you want to join or create a new one.
+						</p>
+						<Button
+							className="pm-button !h-12 w-full !text-lg !font-semibold"
+							onClick={() => router.push("/groups/me")}
+						>
+							Manage Your Group
+						</Button>
+					</Card>
+				</div>
+			</div>
+		);
+	}
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
