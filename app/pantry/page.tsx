@@ -22,20 +22,20 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import type {
-	PantryItemGetDTO,
-	PantryItemPostDTO,
-	PantryItemPutDTO,
-	PantryGetDTO,
+  PantryItemGetDTO,
+  PantryItemPostDTO,
+  PantryItemPutDTO,
+  PantryGetDTO,
 } from "@/types/pantry";
 import type { Unit } from "@/types/unit";
 
 const { Title } = Typography;
 
 interface IngredientGetDTO {
-	id?: number;
-	ingredientName?: string;
-	unit?: Unit;
-	ingredientDescription?: string;
+  id?: number;
+  ingredientName?: string;
+  unit?: Unit;
+  ingredientDescription?: string;
 }
 
 interface AutoDetectedIngredientGetDTO {
@@ -47,35 +47,35 @@ interface AutoDetectedIngredientGetDTO {
 }
 
 interface IngredientPostDTO {
-	ingredientName: string;
-	ingredientDescription: string;
-	unit: Unit;
+  ingredientName: string;
+  ingredientDescription: string;
+  unit: Unit;
 }
 
 interface AddItemFormValues {
-	ingredientName: string;
-	ingredientDescription: string;
-	quantity: number;
-	unit: Unit;
+  ingredientName: string;
+  ingredientDescription: string;
+  quantity: number;
+  unit: Unit;
 }
 
 const unitOptions: Array<{ label: string; value: Unit }> = [
-	{ label: "g", value: "GRAM" },
-	{ label: "kg", value: "KILOGRAM" },
-	{ label: "ml", value: "MILLILITER" },
-	{ label: "cl", value: "CENTILITER" },
-	{ label: "l", value: "LITER" },
-	{ label: "piece", value: "PIECE" },
-	{ label: "tbsp", value: "TABLESPOON" },
-	{ label: "tsp", value: "TEASPOON" },
-	{ label: "cup", value: "CUP" },
+  { label: "g", value: "GRAM" },
+  { label: "kg", value: "KILOGRAM" },
+  { label: "ml", value: "MILLILITER" },
+  { label: "cl", value: "CENTILITER" },
+  { label: "l", value: "LITER" },
+  { label: "piece", value: "PIECE" },
+  { label: "tbsp", value: "TABLESPOON" },
+  { label: "tsp", value: "TEASPOON" },
+  { label: "cup", value: "CUP" },
 ];
 
 const getItemsFromList = (list: PantryGetDTO | null): PantryItemGetDTO[] => {
-	if (!list) {
-		return [];
-	}
-	return list.items ?? [];
+  if (!list) {
+    return [];
+  }
+  return list.items ?? [];
 };
 
 const PantryPage: React.FC = () => {
@@ -101,7 +101,7 @@ const PantryPage: React.FC = () => {
 	const [isDetecting, setIsDetecting] = useState(false);
 	const [isAddingDetected, setIsAddingDetected] = useState(false);
 
-	const items = useMemo(() => getItemsFromList(pantry), [pantry]);
+  const items = useMemo(() => getItemsFromList(pantry), [pantry]);
 
 	const fetchPantry = useCallback(
 		async (showLoader = true) => {
@@ -131,160 +131,171 @@ const PantryPage: React.FC = () => {
 		[apiService],
 	);
 
-	const fetchIngredients = useCallback(async () => {
-		setIsLoadingIngredients(true);
-		try {
-			const data = await apiService.get<IngredientGetDTO[]>("/ingredients");
-			setIngredients(data);
-		} catch (error) {
-			if (error instanceof Error) {
-				setErrorMessage(error.message);
-			} else {
-				setErrorMessage("Could not load ingredients.");
-			}
-		} finally {
-			setIsLoadingIngredients(false);
-		}
-	}, [apiService]);
+  const fetchIngredients = useCallback(async () => {
+    setIsLoadingIngredients(true);
+    try {
+      const data = await apiService.get<IngredientGetDTO[]>("/ingredients");
+      setIngredients(data);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Could not load ingredients.");
+      }
+    } finally {
+      setIsLoadingIngredients(false);
+    }
+  }, [apiService]);
 
-	useEffect(() => {
-		fetchPantry(true);
-	}, [fetchPantry]);
+  useEffect(() => {
+    fetchPantry(true);
+  }, [fetchPantry]);
 
-	useEffect(() => {
-		fetchIngredients();
-	}, [fetchIngredients]);
+  useEffect(() => {
+    fetchIngredients();
+  }, [fetchIngredients]);
 
-	const markItemBusy = (itemId: number, isBusy: boolean) => {
-		setBusyItemIds((prev) => {
-			if (isBusy && !prev.includes(itemId)) {
-				return [...prev, itemId];
-			}
-			if (!isBusy) {
-				return prev.filter((id) => id !== itemId);
-			}
-			return prev;
-		});
-	};
+  const markItemBusy = (itemId: number, isBusy: boolean) => {
+    setBusyItemIds((prev) => {
+      if (isBusy && !prev.includes(itemId)) {
+        return [...prev, itemId];
+      }
+      if (!isBusy) {
+        return prev.filter((id) => id !== itemId);
+      }
+      return prev;
+    });
+  };
 
-	const handleAddItem = async (values: AddItemFormValues) => {
-		const cleanName = (values.ingredientName ?? "").trim();
-		if (!cleanName) {
-			setErrorMessage("Ingredient name must be provided.");
-			return;
-		}
-		const cleanDescription = (values.ingredientDescription ?? "").trim();
-		if (!cleanDescription) {
-			setErrorMessage("Ingredient description must be provided.");
-			return;
-		}
+  const handleAddItem = async (values: AddItemFormValues) => {
+    const cleanName = (values.ingredientName ?? "").trim();
+    if (!cleanName) {
+      setErrorMessage("Ingredient name must be provided.");
+      return;
+    }
+    const cleanDescription = (values.ingredientDescription ?? "").trim();
+    if (!cleanDescription) {
+      setErrorMessage("Ingredient description must be provided.");
+      return;
+    }
 
-		setErrorMessage("");
-		setSuccessMessage("");
-		setIsAdding(true);
-		try {
-			const cleanUnit = values.unit;
-			const normalizedName = cleanName.toLowerCase();
-			let ingredient = ingredients.find(
-				(item) => (item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName,
-			);
+    setErrorMessage("");
+    setSuccessMessage("");
+    setIsAdding(true);
+    try {
+      const cleanUnit = values.unit;
+      const normalizedName = cleanName.toLowerCase();
+      let ingredient = ingredients.find(
+        (item) =>
+          (item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName,
+      );
 
-			if (!ingredient?.id) {
-				const createPayload: IngredientPostDTO = {
-					ingredientName: cleanName,
-					ingredientDescription: cleanDescription,
-					unit: cleanUnit,
-				};
+      if (!ingredient?.id) {
+        const createPayload: IngredientPostDTO = {
+          ingredientName: cleanName,
+          ingredientDescription: cleanDescription,
+          unit: cleanUnit,
+        };
 
-				const createdIngredient = await apiService.post<IngredientGetDTO>(
-					"/ingredients",
-					createPayload,
-				);
+        const createdIngredient = await apiService.post<IngredientGetDTO>(
+          "/ingredients",
+          createPayload,
+        );
 
-				ingredient = createdIngredient;
-				setIngredients((prev) => [...prev, createdIngredient]);
-			}
+        ingredient = createdIngredient;
+        setIngredients((prev) => [...prev, createdIngredient]);
+      }
 
-			if (!ingredient.id) {
-				setErrorMessage("Ingredient was created but no id was returned.");
-				return;
-			}
+      if (!ingredient.id) {
+        setErrorMessage("Ingredient was created but no id was returned.");
+        return;
+      }
 
-			const shoppingPayload: PantryItemPostDTO = {
-				ingredientId: ingredient.id,
-				quantity: values.quantity,
-			};
+      const shoppingPayload: PantryItemPostDTO = {
+        ingredientId: ingredient.id,
+        quantity: values.quantity,
+      };
 
-			await apiService.post<PantryItemGetDTO>("/groups/me/pantry/items", shoppingPayload);
-			setSuccessMessage("Item added to pantry.");
-			addForm.resetFields();
-			await fetchIngredients();
-			await fetchPantry(false);
-		} catch (error) {
-			if (error instanceof Error) {
-				setErrorMessage(error.message);
-			} else {
-				setErrorMessage("Could not add the item.");
-			}
-		} finally {
-			setIsAdding(false);
-		}
-	};
+      await apiService.post<PantryItemGetDTO>(
+        "/groups/me/pantry/items",
+        shoppingPayload,
+      );
+      setSuccessMessage("Item added to pantry.");
+      addForm.resetFields();
+      await fetchIngredients();
+      await fetchPantry(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Could not add the item.");
+      }
+    } finally {
+      setIsAdding(false);
+    }
+  };
 
-	const loadItemById = async (itemId: number): Promise<PantryItemGetDTO | null> => {
-		setErrorMessage("");
-		try {
-			return await apiService.get<PantryItemGetDTO>(`/groups/me/pantry/items/${itemId}`);
-		} catch (error) {
-			if (error instanceof Error) {
-				setErrorMessage(error.message);
-			} else {
-				setErrorMessage("Could not load item details.");
-			}
-			return null;
-		}
-	};
+  const loadItemById = async (
+    itemId: number,
+  ): Promise<PantryItemGetDTO | null> => {
+    setErrorMessage("");
+    try {
+      return await apiService.get<PantryItemGetDTO>(
+        `/groups/me/pantry/items/${itemId}`,
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Could not load item details.");
+      }
+      return null;
+    }
+  };
 
-	const handleOpenEdit = async (itemId?: number) => {
-		if (!itemId) {
-			setErrorMessage("Item has no id and cannot be edited.");
-			return;
-		}
-		const item = await loadItemById(itemId);
-		if (!item) {
-			return;
-		}
-		setSelectedItem(item);
-		editForm.setFieldsValue({
-			ingredientId: item.ingredientId,
-			quantity: item.quantity,
-		});
-		setIsEditOpen(true);
-	};
+  const handleOpenEdit = async (itemId?: number) => {
+    if (!itemId) {
+      setErrorMessage("Item has no id and cannot be edited.");
+      return;
+    }
+    const item = await loadItemById(itemId);
+    if (!item) {
+      return;
+    }
+    setSelectedItem(item);
+    editForm.setFieldsValue({
+      ingredientId: item.ingredientId,
+      quantity: item.quantity,
+    });
+    setIsEditOpen(true);
+  };
 
-	const handleUpdateItem = async (values: PantryItemPutDTO) => {
-		if (!selectedItem?.id) {
-			setErrorMessage("No item selected for update.");
-			return;
-		}
-		setErrorMessage("");
-		setSuccessMessage("");
-		setIsUpdating(true);
-		try {
-			await apiService.put<void>(`/groups/me/pantry/items/${selectedItem.id}`, values);
-			setSuccessMessage("Item updated.");
-			setIsEditOpen(false);
-			await fetchPantry();
-		} catch (error) {
-			if (error instanceof Error) {
-				setErrorMessage(error.message);
-			} else {
-				setErrorMessage("Could not update the item.");
-			}
-		} finally {
-			setIsUpdating(false);
-		}
-	};
+  const handleUpdateItem = async (values: PantryItemPutDTO) => {
+    if (!selectedItem?.id) {
+      setErrorMessage("No item selected for update.");
+      return;
+    }
+    setErrorMessage("");
+    setSuccessMessage("");
+    setIsUpdating(true);
+    try {
+      await apiService.put<void>(
+        `/groups/me/pantry/items/${selectedItem.id}`,
+        values,
+      );
+      setSuccessMessage("Item updated.");
+      setIsEditOpen(false);
+      await fetchPantry();
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("Could not update the item.");
+      }
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
 	const handleDeleteItem = async (itemId?: number) => {
 		if (!itemId) {
@@ -386,78 +397,84 @@ const PantryPage: React.FC = () => {
 		}
 	};
 
-	const columns: TableColumnsType<PantryItemGetDTO> = [
-		{
-			title: "Ingredient",
-			key: "ingredient",
-			render: (_, record) => (
-				<span>{record.ingredientName ?? `Ingredient #${record.ingredientId ?? "-"}`}</span>
-			),
-		},
-		{
-			title: "Quantity",
-			dataIndex: "quantity",
-			key: "quantity",
-			render: (value: number | undefined, record) => (
-				<span>
-					{value ?? "-"} {unitOptions.find((option) => option.value === record.unit)?.label}
-				</span>
-			),
-		},
-		{
-			title: "Actions",
-			key: "actions",
-			render: (_, record) => (
-				<Space wrap>
-					<Button
-						aria-label="Edit item"
-						className="pm-button !h-9 !w-9 !min-w-9 !p-0"
-						icon={<EditOutlined />}
-						onClick={() => handleOpenEdit(record.id)}
-						size="small"
-					/>
-					<Popconfirm
-						title="Delete this item?"
-						onConfirm={() => handleDeleteItem(record.id)}
-						okText="Delete"
-						cancelText="Cancel"
-					>
-						<Button
-							aria-label="Delete item"
-							className="pm-button !h-9 !w-9 !min-w-9 !p-0"
-							danger
-							icon={<DeleteOutlined />}
-							disabled={!record.id || (record.id ? busyItemIds.includes(record.id) : false)}
-							size="small"
-						/>
-					</Popconfirm>
-				</Space>
-			),
-		},
-	];
+  const columns: TableColumnsType<PantryItemGetDTO> = [
+    {
+      title: "Ingredient",
+      key: "ingredient",
+      render: (_, record) => (
+        <span>
+          {record.ingredientName ?? `Ingredient #${record.ingredientId ?? "-"}`}
+        </span>
+      ),
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+      render: (value: number | undefined, record) => (
+        <span>
+          {value ?? "-"}{" "}
+          {unitOptions.find((option) => option.value === record.unit)?.label}
+        </span>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space wrap>
+          <Button
+            aria-label="Edit item"
+            className="pm-button !h-9 !w-9 !min-w-9 !p-0"
+            icon={<EditOutlined />}
+            onClick={() => handleOpenEdit(record.id)}
+            size="small"
+          />
+          <Popconfirm
+            title="Delete this item?"
+            onConfirm={() => handleDeleteItem(record.id)}
+            okText="Delete"
+            cancelText="Cancel"
+          >
+            <Button
+              aria-label="Delete item"
+              className="pm-button !h-9 !w-9 !min-w-9 !p-0"
+              danger
+              icon={<DeleteOutlined />}
+              disabled={
+                !record.id ||
+                (record.id ? busyItemIds.includes(record.id) : false)
+              }
+              size="small"
+            />
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
-	const ingredientOptions = ingredients.map((ingredient) => ({
-		value: ingredient.ingredientName ?? "",
-		label: ingredient.ingredientName ?? "",
-	}));
+  const ingredientOptions = ingredients.map((ingredient) => ({
+    value: ingredient.ingredientName ?? "",
+    label: ingredient.ingredientName ?? "",
+  }));
 
-	const handleIngredientSelect = (value: string) => {
-		const selectedIngredient = ingredients.find(
-			(ingredient) => ingredient.ingredientName === value,
-		);
-		if (!selectedIngredient) {
-			return;
-		}
-		if (selectedIngredient.ingredientDescription?.trim()) {
-			addForm.setFieldValue(
-				"ingredientDescription",
-				selectedIngredient.ingredientDescription.trim(),
-			);
-		}
-		if (selectedIngredient.unit?.trim()) {
-			addForm.setFieldValue("unit", selectedIngredient.unit);
-		}
-	};
+  const handleIngredientSelect = (value: string) => {
+    const selectedIngredient = ingredients.find(
+      (ingredient) => ingredient.ingredientName === value,
+    );
+    if (!selectedIngredient) {
+      return;
+    }
+    if (selectedIngredient.ingredientDescription?.trim()) {
+      addForm.setFieldValue(
+        "ingredientDescription",
+        selectedIngredient.ingredientDescription.trim(),
+      );
+    }
+    if (selectedIngredient.unit?.trim()) {
+      addForm.setFieldValue("unit", selectedIngredient.unit);
+    }
+  };
 
 	return (
 		<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
@@ -475,16 +492,16 @@ const PantryPage: React.FC = () => {
 				</Space>
 			</div>
 
-			{successMessage ? (
-				<div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
-					{successMessage}
-				</div>
-			) : null}
-			{errorMessage ? (
-				<div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-					{errorMessage}
-				</div>
-			) : null}
+      {successMessage ? (
+        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+          {successMessage}
+        </div>
+      ) : null}
+      {errorMessage ? (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+          {errorMessage}
+        </div>
+      ) : null}
 
 			<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
 				<Title level={4} className="!mt-0">
@@ -621,33 +638,33 @@ const PantryPage: React.FC = () => {
 				</div>
 			</Modal>
 
-			<Modal
-				title="Edit item"
-				open={isEditOpen}
-				onCancel={() => setIsEditOpen(false)}
-				onOk={() => editForm.submit()}
-				confirmLoading={isUpdating}
-				okText="Save"
-			>
-				<Form form={editForm} layout="vertical" onFinish={handleUpdateItem}>
-					<Form.Item
-						label="Ingredient ID"
-						name="ingredientId"
-						rules={[{ required: true, message: "Required" }]}
-					>
-						<InputNumber className="w-full" min={1} />
-					</Form.Item>
-					<Form.Item
-						label="Quantity"
-						name="quantity"
-						rules={[{ required: true, message: "Required" }]}
-					>
-						<InputNumber className="w-full" min={0.1} step={0.1} />
-					</Form.Item>
-				</Form>
-			</Modal>
-		</DashboardShell>
-	);
+      <Modal
+        title="Edit item"
+        open={isEditOpen}
+        onCancel={() => setIsEditOpen(false)}
+        onOk={() => editForm.submit()}
+        confirmLoading={isUpdating}
+        okText="Save"
+      >
+        <Form form={editForm} layout="vertical" onFinish={handleUpdateItem}>
+          <Form.Item
+            label="Ingredient ID"
+            name="ingredientId"
+            rules={[{ required: true, message: "Required" }]}
+          >
+            <InputNumber className="w-full" min={1} />
+          </Form.Item>
+          <Form.Item
+            label="Quantity"
+            name="quantity"
+            rules={[{ required: true, message: "Required" }]}
+          >
+            <InputNumber className="w-full" min={0.1} step={0.1} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </DashboardShell>
+  );
 };
 
 export default PantryPage;

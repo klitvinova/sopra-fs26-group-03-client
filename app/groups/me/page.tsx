@@ -35,15 +35,17 @@ export default function GroupMePage() {
 
 	const isAdmin = group?.members?.find((m) => m.userID === currentUser?.id)?.role === GroupRole.ADMIN;
 
-	useEffect(() => {
-		if (typeof window === "undefined") {
-			return;
-		}
-		const params = new URLSearchParams(window.location.search);
-		if (params.get("joined") === "1") {
-			setJoinedMessage(`You successfully joined ${params.get("groupName") ?? "the group"}.`);
-		}
-	}, []);
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("joined") === "1") {
+      setJoinedMessage(
+        `You successfully joined ${params.get("groupName") ?? "the group"}.`,
+      );
+    }
+  }, []);
 
 	const fetchData = useCallback(async () => {
 		setIsLoading(true);
@@ -324,4 +326,3 @@ export default function GroupMePage() {
 		</div>
 	);
 }
-
