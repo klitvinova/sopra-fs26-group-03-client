@@ -1,11 +1,13 @@
 import type { Unit } from "@/types/unit";
+import { IngredientCategory } from "@/types/ingredientCategory";
 
 export interface PantryItemGetDTO {
-  id: number;
-  quantity: number;
-  ingredientId: number;
-  ingredientName: string;
-  unit: Unit;
+	id: number;
+	quantity: number;
+	ingredientId: number;
+	ingredientName: string;
+	ingredientCategory: IngredientCategory;
+	unit: Unit;
 }
 
 export interface PantryGetDTO {
@@ -15,8 +17,9 @@ export interface PantryGetDTO {
 }
 
 export interface PantryItemPostDTO {
-  ingredientId: number;
-  quantity: number;
+	ingredientId: number;
+	ingredientCategory: IngredientCategory;
+	quantity: number;
 }
 
 export interface PantryItemPutDTO {

@@ -18,7 +18,12 @@ import {
 	Typography,
 	Select,
 } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+	CloseCircleOutlined,
+	DeleteOutlined,
+	EditOutlined,
+	PlusCircleOutlined,
+} from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import type {
@@ -28,36 +33,9 @@ import type {
   PantryGetDTO,
 } from "@/types/pantry";
 import type { Unit } from "@/types/unit";
+import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/ingredientCategory";
 
 const { Title } = Typography;
-
-interface IngredientGetDTO {
-  id?: number;
-  ingredientName?: string;
-  unit?: Unit;
-  ingredientDescription?: string;
-}
-
-interface AutoDetectedIngredientGetDTO {
-	id?: number;
-	ingredientName?: string;
-	ingredientDescription?: string;
-	unit?: Unit;
-	quantity?: number;
-}
-
-interface IngredientPostDTO {
-  ingredientName: string;
-  ingredientDescription: string;
-  unit: Unit;
-}
-
-interface AddItemFormValues {
-  ingredientName: string;
-  ingredientDescription: string;
-  quantity: number;
-  unit: Unit;
-}
 
 const unitOptions: Array<{ label: string; value: Unit }> = [
   { label: "g", value: "GRAM" },
@@ -306,15 +284,44 @@ const PantryPage: React.FC = () => {
 		setSuccessMessage("");
 		markItemBusy(itemId, true);
 		try {
-			await apiService.delete<void>(`/groups/me/pantry/items/${itemId}`);
-			setSuccessMessage("Item deleted.");
-			setPantry((prev) => {
-				if (!prev) {
-					return prev;
-				}
-				const filteredItems = getItemsFromList(prev).filter((entry) => entry.id !== itemId);
-				return { ...prev, items: filteredItems };
-			});
+			const cleanUnit = values.unit;
+			const normalizedName = cleanName.toLowerCase();
+			let ingredient = ingredients.find(
+				(item) => (item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName,
+			);
+
+			if (!ingredient?.id) {
+				const createPayload: IngredientPostDTO = {
+					ingredientName: cleanName,
+					ingredientDescription: cleanDescription,
+					unit: cleanUnit,
+				};
+
+				const createdIngredient = await apiService.post<IngredientGetDTO>(
+					"/ingredients",
+					createPayload,
+				);
+
+				ingredient = createdIngredient;
+				setIngredients((prev) => [...prev, createdIngredient]);
+			}
+
+			if (!ingredient.id) {
+				setErrorMessage("Ingredient was created but no id was returned.");
+				return;
+			}
+
+			const shoppingPayload: PantryItemPostDTO = {
+				ingredientId: ingredient.id,
+				quantity: values.quantity,
+				ingredientCategory: values.ingredientCategory,
+			};
+
+			await apiService.post<PantryItemGetDTO>("/groups/me/pantry/items", shoppingPayload);
+			setSuccessMessage("Item added to pantry.");
+			addForm.resetFields();
+			await fetchIngredients();
+			await fetchPantry(false);
 		} catch (error) {
 			if (error instanceof Error) {
 				setErrorMessage(error.message);
@@ -397,84 +404,97 @@ const PantryPage: React.FC = () => {
 		}
 	};
 
-  const columns: TableColumnsType<PantryItemGetDTO> = [
-    {
-      title: "Ingredient",
-      key: "ingredient",
-      render: (_, record) => (
-        <span>
-          {record.ingredientName ?? `Ingredient #${record.ingredientId ?? "-"}`}
-        </span>
-      ),
-    },
-    {
-      title: "Quantity",
-      dataIndex: "quantity",
-      key: "quantity",
-      render: (value: number | undefined, record) => (
-        <span>
-          {value ?? "-"}{" "}
-          {unitOptions.find((option) => option.value === record.unit)?.label}
-        </span>
-      ),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      render: (_, record) => (
-        <Space wrap>
-          <Button
-            aria-label="Edit item"
-            className="pm-button !h-9 !w-9 !min-w-9 !p-0"
-            icon={<EditOutlined />}
-            onClick={() => handleOpenEdit(record.id)}
-            size="small"
-          />
-          <Popconfirm
-            title="Delete this item?"
-            onConfirm={() => handleDeleteItem(record.id)}
-            okText="Delete"
-            cancelText="Cancel"
-          >
-            <Button
-              aria-label="Delete item"
-              className="pm-button !h-9 !w-9 !min-w-9 !p-0"
-              danger
-              icon={<DeleteOutlined />}
-              disabled={
-                !record.id ||
-                (record.id ? busyItemIds.includes(record.id) : false)
-              }
-              size="small"
-            />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+	const columns: TableColumnsType<PantryItemGetDTO> = [
+		{
+			title: "Ingredient",
+			key: "ingredient",
+			render: (_, record) => (
+				<span>{record.ingredientName ?? `Ingredient #${record.ingredientId ?? "-"}`}</span>
+			),
+		},
+		{
+			title: "Quantity",
+			dataIndex: "quantity",
+			key: "quantity",
+			render: (value: number | undefined, record) => (
+				<span>
+					{value ?? "-"} {unitOptions.find((option) => option.value === record.unit)?.label}
+				</span>
+			),
+		},
+		{
+			title: "Category",
+			key: "category",
+			render: (_, record) => (
+				<span>{record.ingredientCategory ?? `${record.ingredientCategory ?? "-"}`}</span>
+			),
+		},
+		{
+			title: "Actions",
+			key: "actions",
+			render: (_, record) => (
+				<Space wrap>
+					<Button
+						aria-label="Edit item"
+						className="pm-button !h-9 !w-9 !min-w-9 !p-0"
+						icon={<EditOutlined />}
+						onClick={() => handleOpenEdit(record.id)}
+						size="small"
+					/>
+					<Popconfirm
+						title="Delete this item?"
+						onConfirm={() => handleDeleteItem(record.id)}
+						okText="Delete"
+						cancelText="Cancel"
+					>
+						<Button
+							aria-label="Delete item"
+							className="pm-button !h-9 !w-9 !min-w-9 !p-0"
+							danger
+							icon={<DeleteOutlined />}
+							disabled={!record.id || (record.id ? busyItemIds.includes(record.id) : false)}
+							size="small"
+						/>
+					</Popconfirm>
+				</Space>
+			),
+		},
+	];
 
-  const ingredientOptions = ingredients.map((ingredient) => ({
-    value: ingredient.ingredientName ?? "",
-    label: ingredient.ingredientName ?? "",
-  }));
+	const ingredientOptions = ingredients.map((ingredient) => ({
+		value: ingredient.ingredientName ?? "",
+		label: ingredient.ingredientName ?? "",
+	}));
 
-  const handleIngredientSelect = (value: string) => {
-    const selectedIngredient = ingredients.find(
-      (ingredient) => ingredient.ingredientName === value,
-    );
-    if (!selectedIngredient) {
-      return;
-    }
-    if (selectedIngredient.ingredientDescription?.trim()) {
-      addForm.setFieldValue(
-        "ingredientDescription",
-        selectedIngredient.ingredientDescription.trim(),
-      );
-    }
-    if (selectedIngredient.unit?.trim()) {
-      addForm.setFieldValue("unit", selectedIngredient.unit);
-    }
-  };
+	const handleIngredientSelect = (value: string) => {
+		const selectedIngredient = ingredients.find(
+			(ingredient) => ingredient.ingredientName === value,
+		);
+		if (!selectedIngredient) {
+			return;
+		}
+		if (selectedIngredient.ingredientDescription?.trim()) {
+			addForm.setFieldValue(
+				"ingredientDescription",
+				selectedIngredient.ingredientDescription.trim(),
+			);
+		}
+		if (selectedIngredient.unit?.trim()) {
+			addForm.setFieldValue("unit", selectedIngredient.unit);
+		}
+	};
+
+	const [search, setSearch] = useState("");
+
+	const filteredOptions = ingredientOptions.filter((opt) =>
+		opt.label.toLowerCase().includes(search.toLowerCase()),
+	);
+
+	const [addFormVisible, setAddFormVisible] = useState(false);
+
+	const handleAddFormVisibleChange = () => {
+		setAddFormVisible(!addFormVisible);
+	};
 
 	return (
 		<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
@@ -482,14 +502,24 @@ const PantryPage: React.FC = () => {
 				<Title level={2} className="!m-0 !text-slate-900">
 					Pantry
 				</Title>
-				<Space>
-					<Button className="pm-button" onClick={() => setIsDetectOpen(true)}>
-						Detect from image
+				<div className={"flex gap-2"}>
+					<Button className="pm-button" onClick={handleAddFormVisibleChange}>
+						{addFormVisible ? (
+							<div className={"flex items-center gap-2"}>
+								<PlusCircleOutlined />
+								Close Form
+							</div>
+						) : (
+							<div className={"flex items-center gap-2"}>
+								<CloseCircleOutlined />
+								Add Item
+							</div>
+						)}
 					</Button>
 					<Button className="pm-button" onClick={() => fetchPantry(true)}>
 						Refresh
 					</Button>
-				</Space>
+				</div>
 			</div>
 
       {successMessage ? (
@@ -503,45 +533,51 @@ const PantryPage: React.FC = () => {
         </div>
       ) : null}
 
-			<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
-				<Title level={4} className="!mt-0">
-					Add item to pantry
-				</Title>
-				<Form form={addForm} layout="vertical" onFinish={handleAddItem}>
-					<Form.Item
-						label="Name"
-						name="ingredientName"
-						rules={[
-							{ required: true, message: "Required" },
-							{ whitespace: true, message: "Required" },
-						]}
-					>
-						<AutoComplete
-							options={ingredientOptions}
-							onSelect={handleIngredientSelect}
-							placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
-						/>
-					</Form.Item>
-					<Form.Item label="Description" name="ingredientDescription">
-						<Input placeholder="Short ingredient description" />
-					</Form.Item>
-					<Form.Item
-						label="Quantity"
-						name="quantity"
-						rules={[{ required: true, message: "Required" }]}
-					>
-						<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
-					</Form.Item>
-					<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
-						<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
-					</Form.Item>
-					<Form.Item>
-						<Button className="pm-button" htmlType="submit" loading={isAdding}>
-							Save entry
-						</Button>
-					</Form.Item>
-				</Form>
-			</Card>
+			{addFormVisible && (
+				<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
+					<Title level={4} className="!mt-0">
+						Add item to pantry
+					</Title>
+					<Form form={addForm} layout="vertical" onFinish={handleAddItem}>
+						<Form.Item
+							label="Name"
+							name="ingredientName"
+							rules={[
+								{ required: true, message: "Required" },
+								{ whitespace: true, message: "Required" },
+							]}
+						>
+							<AutoComplete
+								options={filteredOptions}
+								onSelect={(value: string) => handleIngredientSelect(value)}
+								onChange={(value: string) => setSearch(value)}
+								placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
+							/>
+						</Form.Item>
+						<Form.Item label="Description" name="ingredientDescription">
+							<Input placeholder="Short ingredient description" />
+						</Form.Item>
+						<Form.Item
+							label="Quantity"
+							name="quantity"
+							rules={[{ required: true, message: "Required" }]}
+						>
+							<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
+						</Form.Item>
+						<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
+							<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
+						</Form.Item>
+						<Form.Item label="Category" name="ingredientCategory">
+							<Input placeholder="e.g. Vegetables" />
+						</Form.Item>
+						<Form.Item>
+							<Button className="pm-button" htmlType="submit" loading={isAdding}>
+								Save entry
+							</Button>
+						</Form.Item>
+					</Form>
+				</Card>
+			)}
 
 			<Card className="rounded-3xl border border-primary-200 bg-white/90">
 				<Title level={4} className="!mt-0">
