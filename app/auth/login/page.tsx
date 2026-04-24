@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
-import { Button, Form, Input, Card } from "antd";
+import { Button, Form, Input, Card, Typography } from "antd";
+import Image from "next/image";
+
+const { Text } = Typography;
 
 interface FormFieldProps {
   label: string;
@@ -30,14 +33,24 @@ const Login: React.FC = () => {
     }
   };
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-gradient-to-b from-orange-50 to-white px-4 py-6">
-      <Card className="w-full max-w-md rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-primary-600">
-            Welcome back!
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-12">
+      {/* Mini Logo for Auth */}
+      <div className="flex items-center gap-3 mb-12 animate-fade-in-up">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-500 shadow-lg shadow-orange-100">
+          <Image alt="PlateMate logo" height={22} src="/favicon.svg" width={22} className="brightness-0 invert" />
+        </div>
+        <div className="text-2xl font-bold tracking-tight text-slate-800">
+          PlateMate<span className="text-orange-500">.</span>
+        </div>
+      </div>
+
+      <Card className="w-full max-w-md rounded-[2.5rem] border-none bg-orange-50/30 shadow-2xl shadow-slate-200/50 p-4 animate-fade-in-up delay-100">
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Welcome back
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Log in to continue to PlateMate.
+          <p className="mt-2 text-slate-500 font-medium">
+            Log in to manage your kitchen
           </p>
         </div>
         <Form
@@ -45,7 +58,7 @@ const Login: React.FC = () => {
           name="login"
           size="large"
           variant="outlined"
-          className="register-form"
+          className="auth-form"
           onFinish={handleLogin}
           layout="vertical"
         >
@@ -54,35 +67,52 @@ const Login: React.FC = () => {
             name="username"
             rules={[{ required: true, message: "Please input your username!" }]}
           >
-            <Input placeholder="Username" />
+            <Input placeholder="Username" className="!rounded-2xl !h-12 !border-slate-100" />
           </Form.Item>
           <Form.Item
-            className="mb-3"
+            className="mb-2"
             name="password"
             rules={[{ required: true, message: "Please input your password!" }]}
           >
-            <Input.Password placeholder="Password" />
+            <Input.Password placeholder="Password" className="!rounded-2xl !h-12 !border-slate-100" />
           </Form.Item>
-          <a className="forgot-password">Forgot password?</a>
-          <Form.Item className="mb-3">
+
+          <div className="flex justify-end mb-8">
+            <a className="text-sm font-bold text-orange-500 hover:text-orange-600">Forgot password?</a>
+          </div>
+
+          <Form.Item className="mb-4">
             <Button
               htmlType="submit"
-              className="login-button !h-11 !font-semibold"
+              type="primary"
+              className="pm-button-primary w-full !h-14 !rounded-2xl !text-lg !font-bold"
             >
               Log in
             </Button>
           </Form.Item>
-          <Form.Item className="mb-0">
+
+          <div className="text-center">
+            <Text className="text-slate-400">Don&apos;t have an account?</Text>
             <Button
-              htmlType="button"
-              className="register-button !h-11 !font-semibold"
+              type="link"
+              className="!text-orange-500 !font-bold hover:!text-orange-600"
               onClick={() => router.push("/auth/register")}
             >
-              Create account
+              Create one now
             </Button>
-          </Form.Item>
+          </div>
         </Form>
       </Card>
+
+      <div className="mt-12">
+        <Button
+          type="text"
+          className="text-slate-400 hover:text-slate-600 font-medium"
+          onClick={() => router.push("/")}
+        >
+          ← Back to home
+        </Button>
+      </div>
     </div>
   );
 };

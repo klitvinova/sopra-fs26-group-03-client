@@ -11,7 +11,6 @@ export class ApiService {
     this.baseURL = getApiDomain();
     this.defaultHeaders = {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     };
   }
 
@@ -103,9 +102,7 @@ export class ApiService {
 		const res = await fetch(url, {
 			method: "POST",
 			credentials: "include",
-			headers: {
-				"Access-Control-Allow-Origin": "*",
-			},
+			headers: {},
 			body: data,
 		});
 		return this.processResponse<T>(res, "An error occurred while posting the form data.\n");
