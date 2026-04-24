@@ -3,7 +3,10 @@
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, Typography } from "antd";
+import Image from "next/image";
+
+const { Text } = Typography;
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
 
@@ -40,14 +43,24 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-gradient-to-b from-orange-50 to-white px-4 py-6">
-      <Card className="w-full max-w-md rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
-        <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-primary-600">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-12">
+      {/* Mini Logo for Auth */}
+      <div className="flex items-center gap-3 mb-12 animate-fade-in-up">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-orange-500 shadow-lg shadow-orange-100">
+          <Image alt="PlateMate logo" height={22} src="/favicon.svg" width={22} className="brightness-0 invert" />
+        </div>
+        <div className="text-2xl font-bold tracking-tight text-slate-800">
+          PlateMate<span className="text-orange-500">.</span>
+        </div>
+      </div>
+
+      <Card className="w-full max-w-md rounded-[2.5rem] border-none bg-orange-50/30 shadow-2xl shadow-slate-200/50 p-4 animate-fade-in-up delay-100">
+        <div className="mb-10 text-center">
+          <h1 className="text-3xl font-bold text-slate-900">
             Create account
           </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Sign up to start using PlateMate.
+          <p className="mt-2 text-slate-500 font-medium">
+            Sign up to start using PlateMate
           </p>
         </div>
         <Form
@@ -55,20 +68,20 @@ const Register: React.FC = () => {
           name="register"
           size="large"
           variant="outlined"
-          className="register-form"
+          className="auth-form"
           onFinish={handleRegister}
           layout="vertical"
         >
           <Form.Item
+            className="mb-4"
             name="username"
-            // label="Username"
             rules={[{ required: true, message: "Please input your username!" }]}
           >
-            <Input placeholder="Username" />
+            <Input placeholder="Username" className="!rounded-2xl !h-12 !border-slate-100" />
           </Form.Item>
           <Form.Item
+            className="mb-4"
             name="email"
-            // label="E-mail"
             rules={[
               { required: true, message: "Please input your e-mail!" },
               {
@@ -77,12 +90,12 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            <Input placeholder="E-mail" />
+            <Input placeholder="E-mail" className="!rounded-2xl !h-12 !border-slate-100" />
           </Form.Item>
           <Form.Item
+            className="mb-8"
             name="password"
             validateTrigger="onChange"
-            // label="Password"
             rules={[
               { required: true, message: "Please input your password!" },
               { min: 8, message: "Password must be at least 8 characters!" },
@@ -95,18 +108,41 @@ const Register: React.FC = () => {
               },
             ]}
           >
-            <Input.Password placeholder="Password" />
+            <Input.Password placeholder="Password" className="!rounded-2xl !h-12 !border-slate-100" />
           </Form.Item>
-          <Form.Item className="mb-0">
+
+          <Form.Item className="mb-4">
             <Button
               htmlType="submit"
-              className="register-button !h-11 !font-semibold"
+              type="primary"
+              className="pm-button-primary w-full !h-14 !rounded-2xl !text-lg !font-bold"
             >
               Sign Up
             </Button>
           </Form.Item>
+
+          <div className="text-center">
+            <Text className="text-slate-400">Already have an account?</Text>
+            <Button
+              type="link"
+              className="!text-orange-500 !font-bold hover:!text-orange-600"
+              onClick={() => router.push("/auth/login")}
+            >
+              Log in instead
+            </Button>
+          </div>
         </Form>
       </Card>
+
+      <div className="mt-12">
+        <Button
+          type="text"
+          className="text-slate-400 hover:text-slate-600 font-medium"
+          onClick={() => router.push("/")}
+        >
+          ← Back to home
+        </Button>
+      </div>
     </div>
   );
 };

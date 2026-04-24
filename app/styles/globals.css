@@ -1,22 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: Arial, Helvetica, sans-serif;
+  --font-sans: "Inter", "Outfit", system-ui, sans-serif;
 
+  --color-primary-50: #fff7ed;
   --color-primary-100: #ffedd5;
   --color-primary-200: #fed7aa;
   --color-primary-300: #fdba74;
-  --color-primary-400: #f3a04b;
-  --color-primary-500: #ea580c;
-  --color-primary-600: #c2410c;
-  --color-accent-500: #fb923c;
-  --color-secondary-700: #9a3412;
+  --color-primary-400: #fb923c;
+  --color-primary-500: #f97316;
+  --color-primary-600: #ea580c;
+  --color-primary-700: #c2410c;
+  
+  --color-accent-500: #f97316;
 
-  --color-surface: #eff1f3;
-  --color-surface-muted: #f1f5f9;
-  --color-border-soft: #cbd5e1;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-border-soft: #f1f5f9;
   --color-text-main: #0f172a;
-  --color-text-muted: #475569;
+  --color-text-muted: #64748b;
 }
 
 @layer base {
@@ -48,7 +50,6 @@
 }
 
 @layer components {
-
   .login-container,
   .register-container,
   .card-container {
@@ -76,7 +77,12 @@
   }
 
   .pm-button {
-    @apply px-3 py-1.5 text-sm font-medium sm:text-base;
+    @apply px-5 py-2.5 text-sm font-semibold sm:text-base rounded-2xl transition-all;
+    @apply border-orange-100 bg-orange-50 text-orange-600 hover:bg-orange-100 hover:border-orange-200;
+  }
+
+  .ant-btn.pm-button-primary {
+    @apply !bg-orange-500 !text-white !border-none hover:!bg-orange-600 !h-11 shadow-lg shadow-orange-100;
   }
 
   .ant-btn.login-button,
@@ -167,7 +173,9 @@
     color: #ffffff !important;
   }
 
-  .platemate-mini-calendar .ant-picker-cell-out-of-month .ant-picker-cell-inner {
+  .platemate-mini-calendar
+    .ant-picker-cell-out-of-month
+    .ant-picker-cell-inner {
     color: #94a3b8 !important;
     opacity: 0.7;
   }
@@ -177,39 +185,24 @@
     border-color: #cbd5e1 !important;
   }
 
-  .platemate-mini-calendar .ant-picker-cell-selected:hover .ant-picker-cell-inner {
+  .platemate-mini-calendar
+    .ant-picker-cell-selected:hover
+    .ant-picker-cell-inner {
     background-color: #94a3b8 !important;
     border-color: #94a3b8 !important;
   }
 
   .dashboard-sidebar-menu.ant-menu {
-    background: #fff7ed !important;
-    border: none !important;
+    @apply !bg-transparent !border-none;
   }
 
   .dashboard-sidebar-menu .ant-menu-item {
-    background-color: #ffedd5 !important;
-    border: 1px solid #fed7aa !important;
-    border-radius: 20px !important;
-    height: 45px !important;
-    line-height: 45px !important;
-    margin-bottom: 12px !important;
-  }
-
-  .dashboard-sidebar-menu .ant-menu-item:not(.ant-menu-item-selected):hover {
-    background-color: #fed7aa !important;
-    box-shadow: 0 0 0 1px #fb923c !important;
+    @apply !bg-white !border !border-slate-100 !rounded-2xl !h-12 !mb-3 !flex !items-center !transition-all;
+    @apply !text-slate-600 hover:!border-orange-200 hover:!text-orange-500 hover:!bg-orange-50/50;
   }
 
   .dashboard-sidebar-menu .ant-menu-item-selected {
-    background-color: #fed7aa !important;
-    border-color: #fdba74 !important;
-    color: #9a3412 !important;
-    font-weight: 700;
-  }
-
-  .dashboard-sidebar-menu .ant-menu-item-selected:hover {
-    box-shadow: none !important;
+    @apply !bg-orange-500 !border-orange-500 !text-white !font-bold shadow-lg shadow-orange-100;
   }
 
   .dashboard-mini-calendar.ant-card {
@@ -249,12 +242,16 @@
     color: #9a3412 !important;
   }
 
-  .dashboard-mini-calendar .ant-picker-cell-today .ant-picker-cell-inner::before {
+  .dashboard-mini-calendar
+    .ant-picker-cell-today
+    .ant-picker-cell-inner::before {
     display: none !important;
   }
 
   .dashboard-mini-calendar .ant-picker-cell-selected .ant-picker-cell-inner,
-  .dashboard-mini-calendar .ant-picker-cell-selected:hover .ant-picker-cell-inner {
+  .dashboard-mini-calendar
+    .ant-picker-cell-selected:hover
+    .ant-picker-cell-inner {
     background-color: #f97316 !important;
     border-color: #f97316 !important;
     color: #ffffff !important;
@@ -272,4 +269,49 @@
   .dashboard-mini-calendar .ant-select-item-option-content {
     color: #9a3412 !important;
   }
+
+  /* Glassmorphism Utilities */
+  .glass-effect {
+    @apply bg-white/70 backdrop-blur-md border border-white/20;
+  }
+
+  .glass-card {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl rounded-3xl overflow-hidden;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
 }

@@ -11,7 +11,6 @@ export class ApiService {
     this.baseURL = getApiDomain();
     this.defaultHeaders = {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     };
   }
 
@@ -75,41 +74,39 @@ export class ApiService {
     );
   }
 
-  /**
-   * POST request.
-   * @param endpoint - The API endpoint (e.g. "/users").
-   * @param data - The payload to post.
-   * @returns JSON data of type T.
-   */
-  public async post<T>(endpoint: string, data: unknown): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const res = await fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: this.defaultHeaders,
-      body: JSON.stringify(data),
-    });
-    return this.processResponse<T>(res, "An error occurred while posting the data.\n");
-  }
+	/**
+	 * POST request.
+	 * @param endpoint - The API endpoint (e.g. "/users").
+	 * @param data - The payload to post.
+	 * @returns JSON data of type T.
+	 */
+	public async post<T>(endpoint: string, data: unknown): Promise<T> {
+		const url = `${this.baseURL}${endpoint}`;
+		const res = await fetch(url, {
+			method: "POST",
+			credentials: "include",
+			headers: this.defaultHeaders,
+			body: JSON.stringify(data),
+		});
+		return this.processResponse<T>(res, "An error occurred while posting the data.\n");
+	}
 
-  /**
-   * POST request with multipart/form-data payload.
-   * @param endpoint - The API endpoint (e.g. "/uploads").
-   * @param data - The FormData payload.
-   * @returns JSON data of type T.
-   */
-  public async postFormData<T>(endpoint: string, data: FormData): Promise<T> {
-    const url = `${this.baseURL}${endpoint}`;
-    const res = await fetch(url, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: data,
-    });
-    return this.processResponse<T>(res, "An error occurred while posting the form data.\n");
-  }
+	/**
+	 * POST request with multipart/form-data payload.
+	 * @param endpoint - The API endpoint (e.g. "/uploads").
+	 * @param data - The FormData payload.
+	 * @returns JSON data of type T.
+	 */
+	public async postFormData<T>(endpoint: string, data: FormData): Promise<T> {
+		const url = `${this.baseURL}${endpoint}`;
+		const res = await fetch(url, {
+			method: "POST",
+			credentials: "include",
+			headers: {},
+			body: data,
+		});
+		return this.processResponse<T>(res, "An error occurred while posting the form data.\n");
+	}
 
   /**
    * PUT request.

@@ -54,25 +54,26 @@ export default function PageHeader({ title }: PageHeaderProps) {
   }, [apiService]);
 
   return (
-    <header className="border-b border-primary-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-6">
+    <header className="border-b border-orange-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-6">
         <div
           className="flex cursor-pointer items-center gap-3 transition-all hover:opacity-80"
           onClick={() => router.push("/dashboard")}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-100 shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 shadow-lg shadow-orange-100">
             <Image
               alt="PlateMate logo"
               height={22}
               src="/favicon.svg"
               width={22}
+              className="brightness-0 invert"
             />
           </div>
           <div>
-            <div className="text-xl font-bold tracking-tight text-slate-900">
-              PlateMate
+            <div className="text-2xl font-bold tracking-tight text-slate-900">
+              PlateMate<span className="text-orange-500">.</span>
             </div>
-            <p className="text-[10px] font-medium uppercase tracking-widest text-slate-400">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-500/60 leading-none mt-1">
               {title}
             </p>
           </div>
@@ -80,14 +81,18 @@ export default function PageHeader({ title }: PageHeaderProps) {
 
         <div className="flex items-center gap-3">
           <Button
-            className="pm-button !h-10 border-primary-200 bg-primary-50 px-5 font-semibold text-primary-700 hover:!border-primary-400"
+            className="pm-button !h-11 px-6 !rounded-xl"
             onClick={() => router.push(hasGroup ? "/groups/me" : "/groups")}
           >
-            {yourGroup}
+            <span className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+              {yourGroup}
+            </span>
           </Button>
-          <div className="h-6 w-px bg-slate-200 mx-1" />
+          <div className="h-8 w-px bg-slate-100 mx-2" />
           <Button
-            className="pm-button !h-10 !border-slate-200 !bg-white px-5 font-medium text-slate-600 hover:!border-slate-400 hover:!text-slate-900"
+            type="text"
+            className="!h-11 px-4 font-bold text-slate-400 hover:text-red-500 transition-colors"
             onClick={handleLogout}
           >
             Log out
