@@ -10,11 +10,12 @@ import {
   RightOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
-import { Button, Calendar, Card, Select } from "antd";
+import { Button, Calendar, Card, Select, Spin } from "antd";
 import type { CalendarProps } from "antd";
 import dayjs from "dayjs";
 import type { Dayjs } from "dayjs";
 import { useRouter } from "next/navigation";
+import { useApi } from "@/hooks/useApi";
 import PageHeader from "@/components/page-header";
 
 interface DashboardShellProps {
@@ -51,6 +52,21 @@ export default function DashboardShell({
   children,
 }: DashboardShellProps) {
   const router = useRouter();
+  const api = useApi();
+  const [isVerifying, setIsVerifying] = React.useState(true);
+
+  React.useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        await api.get("/users/me");
+        setIsVerifying(false);
+      } catch (error) {
+        console.error("Auth verification failed:", error);
+        router.push("/auth/login");
+      }
+    };
+    verifyAuth();
+  }, [api, router]);
 
   const renderCalendarHeader: CalendarProps<Dayjs>["headerRender"] = ({
     value,
@@ -107,6 +123,14 @@ export default function DashboardShell({
       router.push(route);
     }
   };
+
+  if (isVerifying) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-orange-50 to-white">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
