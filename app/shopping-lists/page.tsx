@@ -177,6 +177,7 @@ const ShoppingListsPage: React.FC = () => {
 			const shoppingPayload: ShoppingListItemPostDTO = {
 				ingredientId: ingredient.id,
 				quantity: values.quantity,
+				ingredientCategory: values.ingredientCategory,
 			};
 
 			await apiService.post<ShoppingListItemGetDTO>(
@@ -344,6 +345,13 @@ const ShoppingListsPage: React.FC = () => {
 				<span className={record.isBought ? "line-through text-slate-400" : ""}>
 					{record.ingredientName ?? `Ingredient #${record.ingredientId ?? "-"}`}
 				</span>
+			),
+		},
+		{
+			title: "Category",
+			key: "category",
+			render: (_, record) => (
+				<span>{record.ingredientCategory ?? `${record.ingredientCategory ?? "-"}`}</span>
 			),
 		},
 		{

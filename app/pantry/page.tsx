@@ -179,6 +179,7 @@ const PantryPage: React.FC = () => {
 			const shoppingPayload: PantryItemPostDTO = {
 				ingredientId: ingredient.id,
 				quantity: values.quantity,
+				ingredientCategory: values.ingredientCategory,
 			};
 
 			await apiService.post<PantryItemGetDTO>("/groups/me/pantry/items", shoppingPayload);
@@ -297,6 +298,13 @@ const PantryPage: React.FC = () => {
 				<span>
 					{value ?? "-"} {unitOptions.find((option) => option.value === record.unit)?.label}
 				</span>
+			),
+		},
+		{
+			title: "Category",
+			key: "category",
+			render: (_, record) => (
+				<span>{record.ingredientCategory ?? `${record.ingredientCategory ?? "-"}`}</span>
 			),
 		},
 		{
