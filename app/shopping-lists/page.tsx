@@ -19,6 +19,7 @@ import {
   Select,
   List,
 } from "antd";
+import { PlusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
@@ -31,39 +32,20 @@ import type {
   AutoDetectedIngredientGetDTO,
 } from "@/types/shopping-list";
 import type { Unit } from "@/types/unit";
+import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/ingredientCategory";
 
 const { Title } = Typography;
 
-interface IngredientGetDTO {
-  id?: number;
-  ingredientName?: string;
-  ingredientDescription?: string;
-  unit?: Unit;
-}
-
-interface IngredientPostDTO {
-  ingredientName: string;
-  ingredientDescription: string;
-  unit: Unit;
-}
-
-interface AddItemFormValues {
-  ingredientName: string;
-  ingredientDescription: string;
-  quantity: number;
-  unit: Unit;
-}
-
 const unitOptions: Array<{ label: string; value: Unit }> = [
-  { label: "g", value: "GRAM" },
-  { label: "kg", value: "KILOGRAM" },
-  { label: "ml", value: "MILLILITER" },
-  { label: "cl", value: "CENTILITER" },
-  { label: "l", value: "LITER" },
-  { label: "piece", value: "PIECE" },
-  { label: "tbsp", value: "TABLESPOON" },
-  { label: "tsp", value: "TEASPOON" },
-  { label: "cup", value: "CUP" },
+	{ label: "g", value: "GRAM" },
+	{ label: "kg", value: "KILOGRAM" },
+	{ label: "ml", value: "MILLILITER" },
+	{ label: "cl", value: "CENTILITER" },
+	{ label: "l", value: "LITER" },
+	{ label: "piece", value: "PIECE" },
+	{ label: "tbsp", value: "TABLESPOON" },
+	{ label: "tsp", value: "TEASPOON" },
+	{ label: "cup", value: "CUP" },
 ];
 
 const getItemsFromList = (
@@ -211,10 +193,11 @@ const ShoppingListsPage: React.FC = () => {
         return;
       }
 
-      const shoppingPayload: ShoppingListItemPostDTO = {
-        ingredientId: ingredient.id,
-        quantity: values.quantity,
-      };
+			const shoppingPayload: ShoppingListItemPostDTO = {
+				ingredientId: ingredient.id,
+				quantity: values.quantity,
+				ingredientCategory: values.ingredientCategory,
+			};
 
       await apiService.post<ShoppingListItemGetDTO>(
         "/groups/me/shopping-list/items",
@@ -542,6 +525,18 @@ const ShoppingListsPage: React.FC = () => {
     }
   };
 
+	const [search, setSearch] = useState("");
+
+	const filteredOptions = ingredientOptions.filter((opt) =>
+		opt.label.toLowerCase().includes(search.toLowerCase()),
+	);
+
+	const [addFormVisible, setAddFormVisible] = useState(false);
+
+	const handleAddFormVisibleChange = () => {
+		setAddFormVisible(!addFormVisible);
+	};
+
   return (
     <DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
       <div className="mb-8 flex items-center justify-between gap-4">
@@ -557,6 +552,7 @@ const ShoppingListsPage: React.FC = () => {
           </Button>
         </Space>
       </div>
+</div>
 
       {successMessage ? (
         <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
@@ -569,57 +565,51 @@ const ShoppingListsPage: React.FC = () => {
         </div>
       ) : null}
 
-      <Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
-        <Title level={4} className="!mt-0">
-          Add item to database and shopping list
-        </Title>
-        <Form form={addForm} layout="vertical" onFinish={handleAddItem}>
-          <Form.Item
-            label="Name"
-            name="ingredientName"
-            rules={[
-              { required: true, message: "Required" },
-              { whitespace: true, message: "Required" },
-            ]}
-          >
-            <AutoComplete
-              options={ingredientOptions}
-              onSelect={handleIngredientSelect}
-              placeholder={
-                isLoadingIngredients
-                  ? "Loading ingredients..."
-                  : "e.g. Tomatoes"
-              }
-            />
-          </Form.Item>
-          <Form.Item label="Description" name="ingredientDescription">
-            <Input placeholder="Short ingredient description" />
-          </Form.Item>
-          <Form.Item
-            label="Quantity"
-            name="quantity"
-            rules={[{ required: true, message: "Required" }]}
-          >
-            <InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
-          </Form.Item>
-          <Form.Item
-            label="Unit"
-            name="unit"
-            rules={[{ required: true, message: "Required" }]}
-          >
-            <Select
-              className="min-w-28"
-              options={unitOptions}
-              placeholder="Choose"
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button className="pm-button" htmlType="submit" loading={isAdding}>
-              Save entry
-            </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+			{addFormVisible && (
+				<Card className="rounded-3xl border border-primary-200 bg-white/90 addFormVisible:bg-black">
+					<Title level={4} className="!mt-0">
+						Add item to database and shopping list
+					</Title>
+					<Form form={addForm} layout="vertical" onFinish={handleAddItem}>
+						<Form.Item
+							label="Name"
+							name="ingredientName"
+							rules={[
+								{ required: true, message: "Required" },
+								{ whitespace: true, message: "Required" },
+							]}
+						>
+							<AutoComplete
+								options={filteredOptions}
+								onSelect={(value: string) => handleIngredientSelect(value)}
+								onChange={(value: string) => setSearch(value)}
+								placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
+							/>
+						</Form.Item>
+						<Form.Item label="Description" name="ingredientDescription">
+							<Input placeholder="Short ingredient description" />
+						</Form.Item>
+						<Form.Item
+							label="Quantity"
+							name="quantity"
+							rules={[{ required: true, message: "Required" }]}
+						>
+							<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
+						</Form.Item>
+						<Form.Item label="Category" name="ingredientCategory">
+							<Input placeholder="e.g. Vegetables" />
+						</Form.Item>
+						<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
+							<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
+						</Form.Item>
+						<Form.Item>
+							<Button className="pm-button" htmlType="submit" loading={isAdding}>
+								Save entry
+							</Button>
+						</Form.Item>
+					</Form>
+				</Card>
+			)}
 
       <Card className="rounded-3xl border border-primary-200 bg-white/90">
         <Title level={4} className="!mt-0">

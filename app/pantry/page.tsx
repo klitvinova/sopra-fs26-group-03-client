@@ -18,7 +18,12 @@ import {
 	Typography,
 	Select,
 } from "antd";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import {
+	CloseCircleOutlined,
+	DeleteOutlined,
+	EditOutlined,
+	PlusCircleOutlined,
+} from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import type {
@@ -28,15 +33,9 @@ import type {
   PantryGetDTO,
 } from "@/types/pantry";
 import type { Unit } from "@/types/unit";
+import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/ingredientCategory";
 
 const { Title } = Typography;
-
-interface IngredientGetDTO {
-  id?: number;
-  ingredientName?: string;
-  unit?: Unit;
-  ingredientDescription?: string;
-}
 
 interface AutoDetectedIngredientGetDTO {
 	id?: number;
@@ -44,19 +43,6 @@ interface AutoDetectedIngredientGetDTO {
 	ingredientDescription?: string;
 	unit?: Unit;
 	quantity?: number;
-}
-
-interface IngredientPostDTO {
-  ingredientName: string;
-  ingredientDescription: string;
-  unit: Unit;
-}
-
-interface AddItemFormValues {
-  ingredientName: string;
-  ingredientDescription: string;
-  quantity: number;
-  unit: Unit;
 }
 
 const unitOptions: Array<{ label: string; value: Unit }> = [
@@ -209,6 +195,7 @@ const PantryPage: React.FC = () => {
       const shoppingPayload: PantryItemPostDTO = {
         ingredientId: ingredient.id,
         quantity: values.quantity,
+				ingredientCategory: values.ingredientCategory,
       };
 
       await apiService.post<PantryItemGetDTO>(
@@ -413,6 +400,13 @@ const PantryPage: React.FC = () => {
         </span>
       ),
     },
+		{
+			title: "Category",
+			key: "category",
+			render: (_, record) => (
+				<span>{record.ingredientCategory ?? `${record.ingredientCategory ?? "-"}`}</span>
+			),
+		},
     {
       title: "Actions",
       key: "actions",
@@ -471,20 +465,42 @@ const PantryPage: React.FC = () => {
     }
   };
 
+	const [search, setSearch] = useState("");
+
+	const filteredOptions = ingredientOptions.filter((opt) =>
+		opt.label.toLowerCase().includes(search.toLowerCase()),
+	);
+
+	const [addFormVisible, setAddFormVisible] = useState(false);
+
+	const handleAddFormVisibleChange = () => {
+		setAddFormVisible(!addFormVisible);
+	};
+
 	return (
 		<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
 			<div className="mb-8 flex items-center justify-between gap-4">
 				<Title level={2} className="!m-0 !text-slate-900">
 					Pantry
 				</Title>
-				<Space>
+				<div className={"flex gap-2"}>
+					<Button className="pm-button" onClick={handleAddFormVisibleChange}>
+						{addFormVisible ? (
+							<div className={"flex items-center gap-2"}>
+								<PlusCircleOutlined />
+								Close Form
+							</div>
+						) : (
+							<div className={"flex items-center gap-2"}>
+								<CloseCircleOutlined />
+								Add Item
+							</div>
+						)}
+					</Button>
 					<Button className="pm-button" onClick={() => setIsDetectOpen(true)}>
 						Detect from image
 					</Button>
-					<Button className="pm-button" onClick={() => fetchPantry(true)}>
-						Refresh
-					</Button>
-				</Space>
+				</div>
 			</div>
 
       {successMessage ? (
@@ -498,6 +514,7 @@ const PantryPage: React.FC = () => {
         </div>
       ) : null}
 
+			{addFormVisible && (
 			<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">
 				<Title level={4} className="!mt-0">
 					Add item to pantry
@@ -512,8 +529,9 @@ const PantryPage: React.FC = () => {
 						]}
 					>
 						<AutoComplete
-							options={ingredientOptions}
-							onSelect={handleIngredientSelect}
+							options={filteredOptions}
+							onSelect={(value: string) => handleIngredientSelect(value)}
+							onChange={(value: string) => setSearch(value)}
 							placeholder={isLoadingIngredients ? "Loading ingredients..." : "e.g. Tomatoes"}
 						/>
 					</Form.Item>
@@ -530,6 +548,9 @@ const PantryPage: React.FC = () => {
 					<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
 						<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
 					</Form.Item>
+				<Form.Item label="Category" name="ingredientCategory">
+					<Input placeholder="e.g. Vegetables" />
+				</Form.Item>
 					<Form.Item>
 						<Button className="pm-button" htmlType="submit" loading={isAdding}>
 							Save entry
@@ -537,6 +558,7 @@ const PantryPage: React.FC = () => {
 					</Form.Item>
 				</Form>
 			</Card>
+			)}
 
 			<Card className="rounded-3xl border border-primary-200 bg-white/90">
 				<Title level={4} className="!mt-0">

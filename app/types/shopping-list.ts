@@ -1,32 +1,37 @@
 import type { Unit } from "@/types/unit";
+import { IngredientCategory } from "@/types/ingredientCategory";
 
 export interface ShoppingListItemGetDTO {
-  id: number;
-  quantity: number;
-  isBought: boolean;
-  ingredientId: number;
-  ingredientName: string;
-  unit: Unit;
+	id: number;
+	quantity: number;
+	isBought: boolean;
+	ingredientId: number;
+	ingredientName: string;
+	ingredientCategory: IngredientCategory;
+	unit: Unit;
 }
 
 export interface ShoppingListGetDTO {
-  id?: number;
-  items?: ShoppingListItemGetDTO[];
-  shoppingListItems?: ShoppingListItemGetDTO[];
+	id?: number;
+	items?: ShoppingListItemGetDTO[];
+	shoppingListItems?: ShoppingListItemGetDTO[];
+	ingredientCategory: IngredientCategory;
 }
 
 export interface ShoppingListItemPostDTO {
-  ingredientId: number;
-  quantity: number;
+	ingredientId: number;
+	ingredientCategory: IngredientCategory;
+	quantity: number;
 }
 
 export interface ItemPutDTO {
-  ingredientId: number;
-  quantity: number;
+	ingredientId: number;
+	ingredientCategory: IngredientCategory;
+	quantity: number;
 }
 
 export interface ItemPatchDTO {
-  isBought: boolean;
+	isBought: boolean;
 }
 
 export interface AutoDetectedIngredientGetDTO {
