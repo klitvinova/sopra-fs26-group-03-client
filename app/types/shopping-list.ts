@@ -31,5 +31,5 @@ export interface ItemPutDTO {
 }
 
 export interface ItemPatchDTO {
-	isBought: boolean;
+  isBought: boolean;
 }

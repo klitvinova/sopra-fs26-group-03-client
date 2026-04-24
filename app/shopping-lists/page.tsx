@@ -2,32 +2,32 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-	AutoComplete,
-	Button,
-	Card,
-	Form,
-	Input,
-	InputNumber,
-	Modal,
-	Popconfirm,
-	Space,
-	Spin,
-	Checkbox,
-	Table,
-	type TableColumnsType,
-	Typography,
-	Select,
+  AutoComplete,
+  Button,
+  Card,
+  Form,
+  Input,
+  InputNumber,
+  Modal,
+  Popconfirm,
+  Space,
+  Spin,
+  Checkbox,
+  Table,
+  type TableColumnsType,
+  Typography,
+  Select,
 } from "antd";
 import { PlusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import type {
-	ItemPatchDTO,
-	ItemPutDTO,
-	ShoppingListGetDTO,
-	ShoppingListItemGetDTO,
-	ShoppingListItemPostDTO,
+  ItemPatchDTO,
+  ItemPutDTO,
+  ShoppingListGetDTO,
+  ShoppingListItemGetDTO,
+  ShoppingListItemPostDTO,
 } from "@/types/shopping-list";
 import type { Unit } from "@/types/unit";
 import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/ingredientCategory";
@@ -35,41 +35,46 @@ import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/
 const { Title } = Typography;
 
 const unitOptions: Array<{ label: string; value: Unit }> = [
-	{ label: "g", value: "GRAM" },
-	{ label: "kg", value: "KILOGRAM" },
-	{ label: "ml", value: "MILLILITER" },
-	{ label: "cl", value: "CENTILITER" },
-	{ label: "l", value: "LITER" },
-	{ label: "piece", value: "PIECE" },
-	{ label: "tbsp", value: "TABLESPOON" },
-	{ label: "tsp", value: "TEASPOON" },
-	{ label: "cup", value: "CUP" },
+  { label: "g", value: "GRAM" },
+  { label: "kg", value: "KILOGRAM" },
+  { label: "ml", value: "MILLILITER" },
+  { label: "cl", value: "CENTILITER" },
+  { label: "l", value: "LITER" },
+  { label: "piece", value: "PIECE" },
+  { label: "tbsp", value: "TABLESPOON" },
+  { label: "tsp", value: "TEASPOON" },
+  { label: "cup", value: "CUP" },
 ];
 
-const getItemsFromList = (list: ShoppingListGetDTO | null): ShoppingListItemGetDTO[] => {
-	if (!list) {
-		return [];
-	}
-	return list.items ?? list.shoppingListItems ?? [];
+const getItemsFromList = (
+  list: ShoppingListGetDTO | null,
+): ShoppingListItemGetDTO[] => {
+  if (!list) {
+    return [];
+  }
+  return list.items ?? list.shoppingListItems ?? [];
 };
 
 const ShoppingListsPage: React.FC = () => {
-	const apiService = useApi();
-	const [addForm] = Form.useForm<AddItemFormValues>();
-	const [editForm] = Form.useForm<ItemPutDTO>();
-	const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(null);
-	const [ingredients, setIngredients] = useState<IngredientGetDTO[]>([]);
-	const [isLoadingList, setIsLoadingList] = useState(true);
-	const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
-	const [isAdding, setIsAdding] = useState(false);
-	const [isUpdating, setIsUpdating] = useState(false);
-	const [busyItemIds, setBusyItemIds] = useState<number[]>([]);
-	const [errorMessage, setErrorMessage] = useState("");
-	const [successMessage, setSuccessMessage] = useState("");
-	const [selectedItem, setSelectedItem] = useState<ShoppingListItemGetDTO | null>(null);
-	const [isEditOpen, setIsEditOpen] = useState(false);
+  const apiService = useApi();
+  const [addForm] = Form.useForm<AddItemFormValues>();
+  const [editForm] = Form.useForm<ItemPutDTO>();
+  const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(
+    null,
+  );
+  const [ingredients, setIngredients] = useState<IngredientGetDTO[]>([]);
+  const [isLoadingList, setIsLoadingList] = useState(true);
+  const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [busyItemIds, setBusyItemIds] = useState<number[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [selectedItem, setSelectedItem] =
+    useState<ShoppingListItemGetDTO | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
-	const items = useMemo(() => getItemsFromList(shoppingList), [shoppingList]);
+  const items = useMemo(() => getItemsFromList(shoppingList), [shoppingList]);
 
 	const fetchShoppingList = useCallback(
 		async (showLoader = true) => {
@@ -81,7 +86,11 @@ const ShoppingListsPage: React.FC = () => {
 				const data = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
 				setShoppingList(data);
 			} catch (error) {
-				if (error instanceof Error) {
+				// If status is 404, it likely means no group, which is an expected "Individual" state now.
+				if (error && typeof error === "object" && "status" in error && error.status === 404) {
+					console.debug("No shopping list found - user likely not in a group.");
+					setShoppingList(null);
+				} else if (error instanceof Error) {
 					setErrorMessage(error.message);
 				} else {
 					setErrorMessage("Could not load the shopping list.");

@@ -1,37 +1,37 @@
 {
-	"name": "sopra-fs26-template-client",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
-		"dev": "next dev --turbopack",
-		"build": "next build",
-		"start": "next start",
-		"lint": "eslint app && prettier --check .",
-		"fmt": "prettier --write ."
-	},
-	"dependencies": {
-		"@ant-design/nextjs-registry": "^1.0.2",
-		"@tailwindcss/postcss": "^4.2.2",
-		"antd": "^6.3.5",
-		"clsx": "^2.1.1",
-		"next": "^15.5.7",
-		"node-localstorage": "^3.0.5",
-		"postcss": "^8.5.9",
-		"process": "^0.11.10",
-		"rc-util": "^5.44.4",
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0",
-		"tailwindcss": "^4.2.2",
-		"throttle-debounce": "^5.0.2"
-	},
-	"devDependencies": {
-		"@eslint/eslintrc": "^3.3.0",
-		"@types/node": "^22.13.5",
-		"@types/react": "^19.0.10",
-		"@types/react-dom": "^19.0.4",
-		"eslint": "^9.21.0",
-		"eslint-config-next": "^15.2.0",
-		"prettier": "^3.3.3",
-		"typescript": "^5"
-	}
+  "name": "sopra-fs26-template-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint app && prettier --check .",
+    "fmt": "prettier --write ."
+  },
+  "dependencies": {
+    "@ant-design/nextjs-registry": "^1.0.2",
+    "@tailwindcss/postcss": "^4.2.2",
+    "antd": "^6.3.5",
+    "clsx": "^2.1.1",
+    "next": "^15.5.7",
+    "node-localstorage": "^3.0.5",
+    "postcss": "^8.5.9",
+    "process": "^0.11.10",
+    "rc-util": "^5.44.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.2.2",
+    "throttle-debounce": "^5.0.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.0",
+    "@types/node": "^22.13.5",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "eslint": "^9.21.0",
+    "eslint-config-next": "^15.2.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5"
+  }
 }

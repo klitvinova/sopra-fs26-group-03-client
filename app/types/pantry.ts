@@ -11,9 +11,9 @@ export interface PantryItemGetDTO {
 }
 
 export interface PantryGetDTO {
-	id: number;
-	groupId: number;
-	items: PantryItemGetDTO[];
+  id: number;
+  groupId: number;
+  items: PantryItemGetDTO[];
 }
 
 export interface PantryItemPostDTO {
@@ -23,6 +23,6 @@ export interface PantryItemPostDTO {
 }
 
 export interface PantryItemPutDTO {
-	ingredientId: number;
-	quantity: number;
+  ingredientId: number;
+  quantity: number;
 }
