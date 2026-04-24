@@ -15,6 +15,7 @@ import {
 import {
   CalendarOutlined,
   RightOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useRouter } from "next/navigation";
@@ -202,25 +203,46 @@ const Dashboard: React.FC = () => {
 
         <Col xs={24} lg={8}>
           <div className="flex flex-col gap-6 h-full">
-            <Card className="shadow-sm rounded-2xl border-none bg-slate-900 text-white overflow-hidden relative">
-              <div className="relative z-10">
-                <Title level={4} className="!text-white !m-0">
-                  Smart Pantry
-                </Title>
-                <Paragraph className="text-slate-400 mt-2 mb-6">
-                  You have {pantryItemCount} item{pantryItemCount === 1 ? "" : "s"} in your pantry.
-                </Paragraph>
+            <Card 
+              className="shadow-sm rounded-2xl border-slate-200"
+              title={
+                <div className="flex items-center gap-2">
+                  <ShoppingCartOutlined className="text-orange-500" /> Shopping List
+                </div>
+              }
+              extra={
                 <Button
-                  ghost
-                  className="rounded-lg border-slate-700 hover:!border-white hover:!text-white"
-                  onClick={() => router.push("/pantry")}
+                  type="link"
+                  onClick={() => router.push("/shopping-lists")}
+                  className="text-slate-500 hover:text-slate-900 flex items-center"
                 >
-                  Manage Pantry
+                  View All <RightOutlined size={12} className="ml-1" />
                 </Button>
-              </div>
-              <div className="absolute -right-8 -bottom-8 opacity-10 text-[120px]">
-                <CalendarOutlined />
-              </div>
+              }
+              headStyle={{ borderBottom: "1px solid #f1f5f9" }}
+            >
+              <List
+                dataSource={(shoppingList?.items ?? shoppingList?.shoppingListItems ?? []).filter(item => !item.isBought).slice(0, 5)}
+                renderItem={(item) => (
+                  <List.Item className="px-0 py-2 border-slate-50">
+                    <div className="flex justify-between w-full">
+                      <Text className="text-slate-700 font-medium">
+                        {item.ingredientName}
+                      </Text>
+                      <Text className="text-slate-400">
+                        {item.quantity} {item.unit?.toLowerCase()}
+                      </Text>
+                    </div>
+                  </List.Item>
+                )}
+                locale={{
+                  emptyText: (
+                    <div className="py-4 text-center text-slate-400 italic">
+                      Nothing to buy!
+                    </div>
+                  ),
+                }}
+              />
             </Card>
 
             <Card className="shadow-sm rounded-2xl border-slate-200 flex-1">
@@ -231,7 +253,7 @@ const Dashboard: React.FC = () => {
               <List
                 split={false}
                 dataSource={[
-                  `You have ${shoppingListItemCount} item${shoppingListItemCount === 1 ? "" : "s"} to buy.`,
+                  `You have ${pantryItemCount} item${pantryItemCount === 1 ? "" : "s"} in your pantry.`,
                   "Schedule your week on Sundays to save time.",
                   "Add missing items to shopping list with one click.",
                   "Check your pantry before going out.",

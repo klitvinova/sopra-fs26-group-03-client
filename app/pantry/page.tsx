@@ -174,11 +174,6 @@ const PantryPage: React.FC = () => {
       return;
     }
     const cleanDescription = (values.ingredientDescription ?? "").trim();
-    if (!cleanDescription) {
-      setErrorMessage("Ingredient description must be provided.");
-      return;
-    }
-
     setErrorMessage("");
     setSuccessMessage("");
     setIsAdding(true);

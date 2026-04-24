@@ -164,12 +164,7 @@ const ShoppingListsPage: React.FC = () => {
       setErrorMessage("Ingredient name must be provided.");
       return;
     }
-    const cleanDescription = values.ingredientDescription.trim();
-    if (!cleanDescription) {
-      setErrorMessage("Ingredient description must be provided.");
-      return;
-    }
-
+    const cleanDescription = (values.ingredientDescription ?? "").trim();
     setErrorMessage("");
     setSuccessMessage("");
     setIsAdding(true);
