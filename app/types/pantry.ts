@@ -18,7 +18,10 @@ export interface PantryGetDTO {
 
 export interface PantryItemPostDTO {
 	ingredientId: number;
+	ingredientName: string;
+	ingredientDescription: string;
 	category: IngredientCategory;
+	unit: Unit;
 	quantity: number;
 }
 
