@@ -63,7 +63,7 @@ const RecipesPage: React.FC = () => {
 							<Paragraph ellipsis={{ rows: 2 }} className="text-slate-500 mb-4">
 								{recipe.description}
 							</Paragraph>
-							<div className="mt-auto min-w-0">
+							<div className="flex-1 mt-auto min-w-0">
 								<Text strong className="block mb-2 text-slate-700">
 									Ingredients:
 								</Text>
