@@ -14,7 +14,8 @@ export type IngredientCategory =
 	| "HERB"
 	| "SPICE"
 	| "OIL"
-	| "CONDIMENT";
+	| "CONDIMENT"
+	| "OTHER";
 
 export interface IngredientGetDTO {
 	id?: number;

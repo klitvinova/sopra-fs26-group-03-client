@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Typography, Card, List, Tag, Spin, message } from "antd";
+import React, { useEffect, useState, useCallback } from "react";
+import { Typography, Card, List, Tag, Spin, message, Button } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
-import { Recipe } from "@/types/recipe";
+import { Recipe, RecipePutDTO } from "@/types/recipe";
+import EditRecipeModal from "@/components/EditRecipeModal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -13,20 +15,47 @@ const RecipesPage: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const data = await api.get<Recipe[]>("/recipes");
-        setRecipes(data);
-      } catch (error) {
-        message.error("Failed to fetch recipes");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchRecipes();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const fetchRecipes = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await api.get<Recipe[]>("/recipes");
+      setRecipes(data);
+    } catch (error) {
+      message.error("Failed to fetch recipes");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }, [api]);
+
+  useEffect(() => {
+    fetchRecipes();
+  }, [fetchRecipes]);
+
+  const handleEditClick = (recipe: Recipe) => {
+    setEditingRecipe(recipe);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveRecipe = async (id: number, data: RecipePutDTO) => {
+    setIsSaving(true);
+    try {
+      await api.put(`/recipes/${id}`, data);
+      message.success("Recipe updated successfully");
+      setIsEditModalOpen(false);
+      setEditingRecipe(null);
+      await fetchRecipes();
+    } catch (error) {
+      message.error("Failed to update recipe");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <DashboardShell headerTitle="Recipes" selectedMenuKey="4">
@@ -50,7 +79,17 @@ const RecipesPage: React.FC = () => {
           renderItem={(recipe) => (
             <List.Item>
               <Card
-                title={recipe.name}
+                title={
+                  <div className="flex justify-between items-center w-full">
+                    <span>{recipe.name}</span>
+                    <Button
+                      type="text"
+                      icon={<EditOutlined />}
+                      onClick={() => handleEditClick(recipe)}
+                      className="text-slate-400 hover:text-blue-500"
+                    />
+                  </div>
+                }
                 hoverable
                 className="h-full shadow-sm rounded-xl border-slate-200"
                 bodyStyle={{
@@ -87,6 +126,14 @@ const RecipesPage: React.FC = () => {
           )}
         />
       )}
+
+      <EditRecipeModal
+        open={isEditModalOpen}
+        recipe={editingRecipe}
+        onCancel={() => setIsEditModalOpen(false)}
+        onSave={handleSaveRecipe}
+        confirmLoading={isSaving}
+      />
     </DashboardShell>
   );
 };

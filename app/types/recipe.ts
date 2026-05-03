@@ -1,4 +1,5 @@
 import { Unit } from "./unit";
+import { IngredientCategory } from "./ingredientCategory";
 
 export interface Ingredient {
   id: number;
@@ -6,6 +7,7 @@ export interface Ingredient {
   ingredientDescription?: string;
   unit: Unit;
   quantity?: number; // Added quantity
+  category?: IngredientCategory;
 }
 
 export interface Recipe {
@@ -13,4 +15,18 @@ export interface Recipe {
   name: string;
   description: string;
   ingredients: Ingredient[]; // Changed from recipeIngredients
+}
+
+export interface IngredientPutDTO {
+  ingredientName: string;
+  ingredientDescription: string;
+  unit: Unit;
+  category: IngredientCategory;
+  quantity: number;
+}
+
+export interface RecipePutDTO {
+  name: string;
+  description: string;
+  ingredients: IngredientPutDTO[];
 }
