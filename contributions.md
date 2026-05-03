@@ -96,7 +96,7 @@ TODO:
 |                     | xx.xx.xxxx | commits            | What            | Why           |
 | **[@klitvinova]**   | 03.05.2026 | [fafbd45](https://github.com/klitvinova/sopra-fs26-group-03-server/commit/fafbd45cdbf08dbdffca59a877a13e2ad45e8760)            | Added endpoints for Recipe management            | To allow manual adding/editing of the Recipes           |
 |                     | 03.05.2026 | [aed6a30](https://github.com/klitvinova/sopra-fs26-group-03-client/commit/aed6a305d3592e751a77f1571100a4f55e39aba4)            | Added Recipe editing page            | To allow manual adding/editing of the Recipes            |
-|                     | 03.05.2026 | [e8dde4f](https://github.com/klitvinova/sopra-fs26-group-03-client/commit/e8dde4f00699439870058a389a1350ad5031c50f)            | Fixed the category misalignment for DB-added and interface-added ingredients            | To fix the issue with categories           |
+|                     | 03.05.2026 | [e8dde4f](https://github.com/klitvinova/sopra-fs26-group-03-client/commit/e8dde4f00699439870058a389a1350ad5031c50f)            | Fixed the category misalignment for DB-added and interface-added ingredients            | To fix the issue with categories (affected Meal Planning, Shopping list and Pantry)          |
 
 ---
 
