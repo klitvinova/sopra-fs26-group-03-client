@@ -81,9 +81,9 @@ TODO:
 | **[@MarcHonegger]** | xx.xx.xxxx | commits            | What            | Why           |
 |                     | xx.xx.xxxx | commits            | What            | Why           |
 |                     | xx.xx.xxxx | commits            | What            | Why           |
-| **[@klitvinova]**   | xx.xx.xxxx | commits            | What            | Why           |
-|                     | xx.xx.xxxx | commits            | What            | Why           |
-|                     | xx.xx.xxxx | commits            | What            | Why           |
+| **[@klitvinova]**   | 23.04.2026 | [a951054](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/74/changes/a95105487af09e15d6471184fb801d9c8645ab39)            | Backend for Meal Planning            | Enabler for key functionality           |
+|                     | 23.04.2026 | [2804c38](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/39/changes/2804c382c52b1068d109dcdddaf742957a0ef526)            | Added Meal planning page            | Enabler for key functionality           |
+|                     | 23.04.2026 | [82fb3f2](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/76/commits)            | Set up Supabase            | Establish permanent DB with recipes           |
 
 ---
 
