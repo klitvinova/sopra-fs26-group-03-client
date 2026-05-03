@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
-  List,
   Button,
   Spin,
   Tag,
@@ -91,7 +90,7 @@ const Dashboard: React.FC = () => {
 		return (
 			<DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
 				<div className="flex items-center justify-center py-20">
-					<Spin size="large" tip="Preparing your kitchen dashboard..." />
+          <Spin size="large" description="Preparing your kitchen dashboard..." />
 				</div>
 			</DashboardShell>
 		);
@@ -140,14 +139,13 @@ const Dashboard: React.FC = () => {
             className="shadow-xl shadow-slate-200/50 rounded-[2rem] border-none h-full"
           >
             {todayMeals.length > 0 ? (
-              <List
-                dataSource={["BREAKFAST", "LUNCH", "DINNER", "SNACK"]}
-                renderItem={(type) => {
+              <div className="space-y-4">
+                {["BREAKFAST", "LUNCH", "DINNER", "SNACK"].map((type) => {
                   const meal = todayMeals.find((m) => m.mealType === type);
                   return (
                     <div
                       key={type}
-                      className={`flex items-center justify-between p-5 rounded-2xl mb-4 transition-all ${meal ? "bg-orange-50/30 border border-orange-100" : "bg-slate-50/50 border border-slate-100 opacity-60"}`}
+                      className={`flex items-center justify-between p-5 rounded-2xl transition-all ${meal ? "bg-orange-50/30 border border-orange-100" : "bg-slate-50/50 border border-slate-100 opacity-60"}`}
                     >
                       <div className="flex items-center gap-5">
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm ${meal ? "bg-white" : "bg-slate-100"}`}>
@@ -170,8 +168,8 @@ const Dashboard: React.FC = () => {
                       )}
                     </div>
                   );
-                }}
-              />
+                })}
+              </div>
             ) : (
               <div className="py-20 text-center">
                 <div className="text-5xl mb-6 opacity-20">🥣</div>
@@ -212,32 +210,28 @@ const Dashboard: React.FC = () => {
                 </Button>
               }
             >
-              <List
-                dataSource={(shoppingList?.items ?? shoppingList?.shoppingListItems ?? []).filter(item => !item.isBought).slice(0, 5)}
-                renderItem={(item) => (
-                  <List.Item key={item.id} className="px-1 py-4 border-slate-50">
-                    <div className="flex justify-between w-full items-center">
+              <div className="space-y-3">
+                {(shoppingList?.items ?? shoppingList?.shoppingListItems ?? [])
+                  .filter((item) => !item.isBought)
+                  .slice(0, 5)
+                  .map((item) => (
+                    <div key={item.id} className="flex justify-between w-full items-center px-1 py-4 border-slate-50">
                       <div className="flex items-center gap-3">
                         <div className="h-2 w-2 rounded-full bg-orange-300" />
-                        <Text className="text-slate-800 font-bold">
-                          {item.ingredientName}
-                        </Text>
+                        <Text className="text-slate-800 font-bold">{item.ingredientName}</Text>
                       </div>
                       <Tag className="rounded-lg border-none bg-orange-50 text-orange-600 font-bold px-3">
                         {item.quantity} {item.unit?.toLowerCase()}
                       </Tag>
                     </div>
-                  </List.Item>
-                )}
-                locale={{
-                  emptyText: (
-                    <div className="py-12 text-center">
-                      <div className="text-4xl mb-4 opacity-10">🛍️</div>
-                      <Text className="text-slate-400 font-medium">All items bought!</Text>
-                    </div>
-                  ),
-                }}
-              />
+                  ))}
+                {(shoppingList?.items ?? shoppingList?.shoppingListItems ?? []).filter((item) => !item.isBought).length === 0 ? (
+                  <div className="py-12 text-center">
+                    <div className="text-4xl mb-4 opacity-10">🛍️</div>
+                    <Text className="text-slate-400 font-medium">All items bought!</Text>
+                  </div>
+                ) : null}
+              </div>
             </Card>
           </div>
         </Col>

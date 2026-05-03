@@ -27,7 +27,7 @@ export interface MissingIngredient {
   ingredient: {
     id: number;
     ingredientName: string;
-    unit: string;
+    standardUnit: string;
   };
   missingQuantity: number;
 }
