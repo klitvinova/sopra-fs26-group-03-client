@@ -190,9 +190,12 @@ const DetectedIngredientRow: React.FC<DetectedIngredientRowProps> = ({
 				<Form.Item
 					label="Quantity"
 					name={[field.name, "quantity"]}
-					rules={[{ required: true, message: "Required" }]}
+					rules={[
+						{ required: true, message: "Required" },
+						{ type: "number", min: 1, message: "Quantity must be at least 1" },
+					]}
 				>
-					<InputNumber min={0} className="w-full" />
+				<InputNumber min={0.1} className="w-full" />
 				</Form.Item>
 
 				<Form.Item
