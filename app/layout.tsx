@@ -31,7 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <ConfigProvider>
+        <ConfigProvider
+				theme={{
+					token: {
+						colorPrimary: "#FFA500"
+						},
+					}}
+					>
           <AntdRegistry>
             <AntdApp>{children}</AntdApp>
           </AntdRegistry>
