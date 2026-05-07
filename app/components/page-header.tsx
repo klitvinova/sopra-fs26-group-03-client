@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { UserOutlined } from "@ant-design/icons";
 
 interface PageHeaderProps {
   title: string;
@@ -81,7 +82,7 @@ export default function PageHeader({ title }: PageHeaderProps) {
 
         <div className="flex items-center gap-3">
           <Button
-            className="pm-button !h-11 px-6 !rounded-xl"
+            className="pm-button-secondary"
             onClick={() => router.push(hasGroup ? "/groups/me" : "/groups")}
           >
             <span className="flex items-center gap-2">
@@ -91,12 +92,14 @@ export default function PageHeader({ title }: PageHeaderProps) {
           </Button>
           <div className="h-8 w-px bg-slate-100 mx-2" />
           <Button
-            type="text"
-            className="!h-11 px-4 font-bold text-slate-400 hover:text-red-500 transition-colors"
+            className="pm-button-secondary"
             onClick={handleLogout}
           >
             Log out
           </Button>
+					<Button className="pm-button-secondary" onClick={() => router.push("/profile")}>
+						<UserOutlined className="text-orange-500 text-lg" />
+					</Button>
         </div>
       </div>
     </header>

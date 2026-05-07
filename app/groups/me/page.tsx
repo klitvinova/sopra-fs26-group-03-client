@@ -33,7 +33,7 @@ export default function GroupMePage() {
 	const [newGroupName, setNewGroupName] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	const isAdmin = group?.members?.find((m) => m.userID === currentUser?.id)?.role === GroupRole.ADMIN;
+	const isAdmin = group?.members?.find((m) => m.userID === currentUser?.userID)?.role === GroupRole.ADMIN;
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -265,7 +265,7 @@ export default function GroupMePage() {
 									{group.members?.map((member) => (
 										<div
 											key={member.userID}
-											className={`flex items-center justify-between rounded-xl border p-3 ${member.userID === currentUser?.id
+											className={`flex items-center justify-between rounded-xl border p-3 ${member.userID === currentUser?.userID
 												? "border-primary-300 bg-primary-50"
 												: "border-slate-100 bg-white"
 												}`}
@@ -276,7 +276,7 @@ export default function GroupMePage() {
 												</div>
 												<div>
 													<Text className="block font-medium">
-														{member.username} {member.userID === currentUser?.id && "(You)"}
+														{member.username} {member.userID === currentUser?.userID && "(You)"}
 													</Text>
 													{member.joinedAt && (
 														<Text className="text-[10px]" type="secondary">

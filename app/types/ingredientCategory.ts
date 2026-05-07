@@ -18,7 +18,7 @@ export type IngredientCategory =
 
 export interface IngredientGetDTO {
 	id?: number;
-	ingredientName?: string;
+	ingredientName: string;
 	ingredientDescription?: string;
 	standardUnit: Unit;
 	category?: IngredientCategory;
