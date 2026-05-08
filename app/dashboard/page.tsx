@@ -4,8 +4,6 @@ import React, { useEffect, useState } from "react";
 import {
   Typography,
   Card,
-  Badge,
-  List,
   Button,
   Spin,
   Tag,
@@ -15,6 +13,7 @@ import {
 import {
   CalendarOutlined,
   RightOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
 import { useRouter } from "next/navigation";
@@ -31,7 +30,7 @@ const Dashboard: React.FC = () => {
 	const apiService = useApi();
 	const router = useRouter();
 	const [user, setUser] = useState<User | null>(null);
-	const [pantry, setPantry] = useState<PantryGetDTO | null>(null);
+	const [, setPantry] = useState<PantryGetDTO | null>(null);
 	const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(null);
 	const [todayMeals, setTodayMeals] = useState<MealPlan[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -42,16 +41,13 @@ const Dashboard: React.FC = () => {
 			setIsLoading(true);
 			setError(null);
 			try {
-				// Fetch user separately as it's core to the identity
 				const userData = await apiService.get<User>("/users/me");
 				setUser(userData);
 
-				// Fetch group-dependent data, but handle "not in group" (404) gracefully
 				try {
 					const pantryData = await apiService.get<PantryGetDTO>("/groups/me/pantry");
 					setPantry(pantryData);
 				} catch {
-					console.debug("No pantry found, likely not in a group yet.");
 					setPantry(null);
 				}
 
@@ -59,7 +55,6 @@ const Dashboard: React.FC = () => {
 					const shoppingListData = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
 					setShoppingList(shoppingListData);
 				} catch {
-					console.debug("No shopping list found, likely not in a group yet.");
 					setShoppingList(null);
 				}
 
@@ -68,7 +63,6 @@ const Dashboard: React.FC = () => {
 					const meals = await apiService.get<MealPlan[]>(`/meal-plans?startDate=${today}&endDate=${today}`);
 					setTodayMeals(meals);
 				} catch {
-					console.debug("Failed to fetch today's meals");
 					setTodayMeals([]);
 				}
 
@@ -81,9 +75,6 @@ const Dashboard: React.FC = () => {
 
 		fetchDashboardData();
 	}, [apiService]);
-
-	const pantryItemCount = pantry?.items?.length ?? 0;
-	const shoppingListItemCount = (shoppingList?.items ?? shoppingList?.shoppingListItems ?? []).filter(item => !item.isBought).length;
 
 	const getMealIcon = (type: string) => {
 		switch (type) {
@@ -99,7 +90,7 @@ const Dashboard: React.FC = () => {
 		return (
 			<DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
 				<div className="flex items-center justify-center py-20">
-					<Spin size="large" tip="Preparing your kitchen dashboard..." />
+          <Spin size="large" description="Preparing your kitchen dashboard..." />
 				</div>
 			</DashboardShell>
 		);
@@ -107,93 +98,90 @@ const Dashboard: React.FC = () => {
 
   return (
     <DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
-      <div className="mb-10">
+      <div className="mb-10 animate-fade-in-up">
         <div className="flex items-center justify-between">
           <div>
-            <Text className="text-slate-400 font-medium uppercase tracking-wider text-xs">
-              Overview
+            <Text className="text-orange-500 font-bold uppercase tracking-[0.2em] text-[10px]">
+              Daily Kitchen Overview
             </Text>
-            <Title level={2} className="!mt-1 !text-slate-900">
+            <Title level={1} className="!mt-2 !text-slate-900 !font-bold">
               Welcome back, {user?.username || "Guest"}! 👋
             </Title>
           </div>
           {error && <Tag color="error" className="rounded-full px-4">{error}</Tag>}
         </div>
-        <Paragraph className="text-slate-500 max-w-2xl">
+        <Paragraph className="text-slate-500 max-w-2xl text-lg mt-2">
           Here&apos;s what&apos;s happening today in your kitchen. Track your
           meals and manage your pantry with ease.
         </Paragraph>
       </div>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[24, 24]} className="animate-fade-in-up delay-100">
         <Col xs={24} lg={16}>
           <Card
             title={
-              <div className="flex items-center gap-2">
-                <CalendarOutlined className="text-slate-600" /> Today&apos;s
-                Menu
+              <div className="flex items-center gap-3 py-1">
+                <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                  <CalendarOutlined />
+                </div>
+                <span className="font-bold text-slate-800 text-lg">Today&apos;s Menu</span>
               </div>
             }
             extra={
               <Button
                 type="link"
                 onClick={() => router.push("/meal-plan")}
-                className="text-slate-500 hover:text-slate-900 flex items-center"
+                className="text-orange-500 hover:text-orange-700 font-bold flex items-center"
               >
-                Detailed Plan <RightOutlined size={12} className="ml-1" />
+                Open Planner <RightOutlined size={12} className="ml-1" />
               </Button>
             }
-            className="shadow-sm rounded-2xl border-slate-200 h-full"
-            headStyle={{ borderBottom: "1px solid #f1f5f9" }}
+            className="shadow-xl shadow-slate-200/50 rounded-[2rem] border-none h-full"
           >
-            {isLoading ? (
-              <div className="py-20 text-center">
-                <Spin />
-              </div>
-            ) : todayMeals.length > 0 ? (
-              <List
-                dataSource={["BREAKFAST", "LUNCH", "DINNER", "SNACK"]}
-                renderItem={(type) => {
+            {todayMeals.length > 0 ? (
+              <div className="space-y-4">
+                {["BREAKFAST", "LUNCH", "DINNER", "SNACK"].map((type) => {
                   const meal = todayMeals.find((m) => m.mealType === type);
                   return (
                     <div
-                      className={`flex items-center justify-between p-4 rounded-xl mb-3 ${meal ? "bg-slate-50 border border-slate-100" : "opacity-40 border border-dashed border-slate-200"}`}
+                      key={type}
+                      className={`flex items-center justify-between p-5 rounded-2xl transition-all ${meal ? "bg-orange-50/30 border border-orange-100" : "bg-slate-50/50 border border-slate-100 opacity-60"}`}
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm text-lg">
+                      <div className="flex items-center gap-5">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl shadow-sm ${meal ? "bg-white" : "bg-slate-100"}`}>
                           {getMealIcon(type)}
                         </div>
                         <div>
-                          <Text strong className="block text-slate-800">
+                          <Text className={`block font-bold text-xs uppercase tracking-widest ${meal ? "text-orange-500" : "text-slate-400"}`}>
                             {type}
                           </Text>
-                          <Text className="text-slate-500">
+                          <Text className={`text-lg font-bold ${meal ? "text-slate-800" : "text-slate-400"}`}>
                             {meal ? meal.recipe.name : "Nothing planned"}
                           </Text>
                         </div>
                       </div>
                       {meal && (
-                        <Tag
-                          color="green"
-                          className="rounded-full border-none px-3 bg-green-50 text-green-600 font-medium"
-                        >
-                          Scheduled
-                        </Tag>
+                        <div className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-sm border border-orange-50">
+                          <div className="h-2 w-2 rounded-full bg-green-500" />
+                          <Text className="text-xs font-bold text-slate-600 uppercase tracking-tight">Scheduled</Text>
+                        </div>
                       )}
                     </div>
                   );
-                }}
-              />
+                })}
+              </div>
             ) : (
-              <div className="py-12 text-center">
-                <Paragraph className="text-slate-400 italic mb-4">
-                  No meals planned for today.
+              <div className="py-20 text-center">
+                <div className="text-5xl mb-6 opacity-20">🥣</div>
+                <Paragraph className="text-slate-400 font-medium text-lg mb-8">
+                  Your menu is currently empty for today.
                 </Paragraph>
                 <Button
-                  className="rounded-lg h-10 border-slate-200 text-slate-600 hover:text-slate-900"
+                  type="primary"
+                  className="pm-button-primary !px-12 !h-12 !text-lg"
                   onClick={() => router.push("/meal-plan")}
                 >
-                  Open Planner
+                  Start Planning
                 </Button>
               </div>
             )}
@@ -202,47 +190,48 @@ const Dashboard: React.FC = () => {
 
         <Col xs={24} lg={8}>
           <div className="flex flex-col gap-6 h-full">
-            <Card className="shadow-sm rounded-2xl border-none bg-slate-900 text-white overflow-hidden relative">
-              <div className="relative z-10">
-                <Title level={4} className="!text-white !m-0">
-                  Smart Pantry
-                </Title>
-                <Paragraph className="text-slate-400 mt-2 mb-6">
-                  You have {pantryItemCount} item{pantryItemCount === 1 ? "" : "s"} in your pantry.
-                </Paragraph>
+            <Card
+              className="shadow-xl shadow-slate-200/50 rounded-[2rem] border-none"
+              title={
+                <div className="flex items-center gap-3 py-1">
+                  <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+                    <ShoppingCartOutlined />
+                  </div>
+                  <span className="font-bold text-slate-800 text-lg">Shopping List</span>
+                </div>
+              }
+              extra={
                 <Button
-                  ghost
-                  className="rounded-lg border-slate-700 hover:!border-white hover:!text-white"
-                  onClick={() => router.push("/pantry")}
+                  type="link"
+                  onClick={() => router.push("/shopping-lists")}
+                  className="text-orange-500 hover:text-orange-700 font-bold flex items-center"
                 >
-                  Manage Pantry
+                  View All <RightOutlined size={12} className="ml-1" />
                 </Button>
+              }
+            >
+              <div className="space-y-3">
+                {(shoppingList?.items ?? shoppingList?.shoppingListItems ?? [])
+                  .filter((item) => !item.isBought)
+                  .slice(0, 5)
+                  .map((item) => (
+                    <div key={item.id} className="flex justify-between w-full items-center px-1 py-4 border-slate-50">
+                      <div className="flex items-center gap-3">
+                        <div className="h-2 w-2 rounded-full bg-orange-300" />
+                        <Text className="text-slate-800 font-bold">{item.ingredientName}</Text>
+                      </div>
+                      <Tag className="rounded-lg border-none bg-orange-50 text-orange-600 font-bold px-3">
+                        {item.quantity} {item.unit?.toLowerCase()}
+                      </Tag>
+                    </div>
+                  ))}
+                {(shoppingList?.items ?? shoppingList?.shoppingListItems ?? []).filter((item) => !item.isBought).length === 0 ? (
+                  <div className="py-12 text-center">
+                    <div className="text-4xl mb-4 opacity-10">🛍️</div>
+                    <Text className="text-slate-400 font-medium">All items bought!</Text>
+                  </div>
+                ) : null}
               </div>
-              <div className="absolute -right-8 -bottom-8 opacity-10 text-[120px]">
-                <CalendarOutlined />
-              </div>
-            </Card>
-
-            <Card className="shadow-sm rounded-2xl border-slate-200 flex-1">
-              <Title level={4} className="!m-0 !text-slate-800">
-                Quick Tips
-              </Title>
-              <Divider className="my-4 border-slate-50" />
-              <List
-                split={false}
-                dataSource={[
-                  `You have ${shoppingListItemCount} item${shoppingListItemCount === 1 ? "" : "s"} to buy.`,
-                  "Schedule your week on Sundays to save time.",
-                  "Add missing items to shopping list with one click.",
-                  "Check your pantry before going out.",
-                ]}
-                renderItem={(item) => (
-                  <List.Item className="px-0 py-2 items-start">
-                    <Badge status="processing" className="mt-2.5 mr-3" />
-                    <Text className="text-slate-500 text-sm">{item}</Text>
-                  </List.Item>
-                )}
-              />
             </Card>
           </div>
         </Col>
@@ -250,9 +239,5 @@ const Dashboard: React.FC = () => {
     </DashboardShell>
   );
 };
-
-const Divider = ({ className }: { className?: string }) => (
-  <div className={`h-[1px] w-full ${className}`} />
-);
 
 export default Dashboard;

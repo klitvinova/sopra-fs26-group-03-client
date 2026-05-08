@@ -5,15 +5,10 @@ import {
   AppstoreOutlined,
   CalendarOutlined,
   FileTextOutlined,
-  LeftOutlined,
   ReadOutlined,
-  RightOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
-import { Button, Calendar, Card, Select, Spin } from "antd";
-import type { CalendarProps } from "antd";
-import dayjs from "dayjs";
-import type { Dayjs } from "dayjs";
+import { Spin } from "antd";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import PageHeader from "@/components/page-header";
@@ -68,54 +63,7 @@ export default function DashboardShell({
     verifyAuth();
   }, [api, router]);
 
-  const renderCalendarHeader: CalendarProps<Dayjs>["headerRender"] = ({
-    value,
-    onChange,
-  }) => {
-    const currentYear = value.year();
-    const yearOptions = Array.from({ length: 11 }, (_, index) => {
-      const year = currentYear - 5 + index;
-      return { label: `${year}`, value: year };
-    });
 
-    const monthOptions = Array.from({ length: 12 }, (_, index) => ({
-      label: dayjs().month(index).format("MMMM"),
-      value: index,
-    }));
-
-    return (
-      <div className="mb-3 rounded-xl border border-primary-200 bg-primary-100 p-2">
-        <div className="flex items-center justify-between gap-2">
-          <Button
-            type="text"
-            icon={<LeftOutlined />}
-            onClick={() => onChange(value.clone().subtract(1, "month"))}
-            className="!h-8 !w-8 !rounded-full !text-primary-600 hover:!bg-primary-200"
-          />
-          <div className="flex flex-1 items-center gap-2">
-            <Select
-              className="flex-1"
-              options={monthOptions}
-              value={value.month()}
-              onChange={(month) => onChange(value.clone().month(month))}
-            />
-            <Select
-              className="w-24"
-              options={yearOptions}
-              value={currentYear}
-              onChange={(year) => onChange(value.clone().year(year))}
-            />
-          </div>
-          <Button
-            type="text"
-            icon={<RightOutlined />}
-            onClick={() => onChange(value.clone().add(1, "month"))}
-            className="!h-8 !w-8 !rounded-full !text-primary-600 hover:!bg-primary-200"
-          />
-        </div>
-      </div>
-    );
-  };
 
   const handleMenuClick = (key: string) => {
     const route = menuRoutes[key];
@@ -133,17 +81,11 @@ export default function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50 to-white">
+    <div className="flex min-h-screen flex-col bg-slate-50/50">
       <PageHeader title={headerTitle} />
       <div className="flex flex-1">
-        <aside className="w-[300px] border-r border-primary-200 bg-orange-50 px-2.5 py-5">
-          <div className="mb-5 text-center">
-            <h2 className="text-2xl font-semibold text-primary-600">
-              PlateMate
-            </h2>
-          </div>
-
-          <nav className="space-y-3">
+        <aside className="w-[280px] bg-white border-r border-slate-100 px-4 py-8">
+          <nav className="space-y-2">
             {menuItems.map((item) => {
               const isActive = item.key === selectedMenuKey;
               return (
@@ -151,27 +93,20 @@ export default function DashboardShell({
                   key={item.key}
                   type="button"
                   onClick={() => handleMenuClick(item.key)}
-                  className={`flex h-11 w-full items-center gap-3 rounded-full border px-4 text-left transition-colors ${
+                  className={`flex h-12 w-full items-center gap-4 rounded-2xl px-4 text-left transition-all duration-200 ${
                     isActive
-                      ? "border-primary-300 bg-primary-200 font-semibold text-secondary-700"
-                      : "border-primary-200 bg-primary-100 text-primary-600 hover:bg-primary-200"
+                      ? "bg-orange-500 text-white font-bold shadow-lg shadow-orange-100"
+                      : "text-slate-500 hover:bg-orange-50 hover:text-orange-600 font-medium"
                   }`}
                 >
-                  <span className="text-base">{item.icon}</span>
+                  <span className={`text-xl ${isActive ? "text-white" : "text-orange-400"}`}>
+                    {item.icon}
+                  </span>
                   <span>{item.label}</span>
                 </button>
               );
             })}
           </nav>
-
-          <div className="mt-10 px-2.5">
-            <Card size="small" className="dashboard-mini-calendar">
-              <Calendar
-                fullscreen={false}
-                headerRender={renderCalendarHeader}
-              />
-            </Card>
-          </div>
         </aside>
 
         <main className="flex-1 p-10">{children}</main>

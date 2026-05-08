@@ -2,21 +2,21 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  AutoComplete,
-  Button,
-  Card,
-  Form,
-  Input,
-  InputNumber,
-  Modal,
-  Popconfirm,
-  Space,
-  Spin,
-  Checkbox,
-  Table,
-  type TableColumnsType,
-  Typography,
-  Select,
+	AutoComplete,
+	Button,
+	Card,
+	Form,
+	Input,
+	InputNumber,
+	Modal,
+	Popconfirm,
+	Space,
+	Spin,
+	Checkbox,
+	Table,
+	type TableColumnsType,
+	Typography,
+	Select,
 } from "antd";
 import { PlusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -30,7 +30,12 @@ import type {
 	ShoppingListItemPostDTO,
 } from "@/types/shopping-list";
 import type { Unit } from "@/types/unit";
-import { AddItemFormValues, IngredientGetDTO, IngredientPostDTO } from "@/types/ingredientCategory";
+import {
+	AddItemFormValues,
+	IngredientCategory,
+	IngredientGetDTO,
+	IngredientPostDTO,
+} from "@/types/ingredientCategory";
 
 const { Title } = Typography;
 
@@ -46,35 +51,47 @@ const unitOptions: Array<{ label: string; value: Unit }> = [
 	{ label: "cup", value: "CUP" },
 ];
 
-const getItemsFromList = (
-  list: ShoppingListGetDTO | null,
-): ShoppingListItemGetDTO[] => {
-  if (!list) {
-    return [];
-  }
-  return list.items ?? list.shoppingListItems ?? [];
+const categoryOptions: Array<{ label: string; value: IngredientCategory }> = [
+	{ label: "Vegetable", value: "VEGETABLE" },
+	{ label: "Fruit", value: "FRUIT" },
+	{ label: "Meat", value: "MEAT" },
+	{ label: "Fish", value: "FISH" },
+	{ label: "Dairy", value: "DAIRY" },
+	{ label: "Eggs", value: "EGGS" },
+	{ label: "Plant protein", value: "PLANT_PROTEIN" },
+	{ label: "Grain", value: "GRAIN" },
+	{ label: "Bakery", value: "BAKERY" },
+	{ label: "Baking", value: "BAKING" },
+	{ label: "Herb", value: "HERB" },
+	{ label: "Spice", value: "SPICE" },
+	{ label: "Oil", value: "OIL" },
+	{ label: "Condiment", value: "CONDIMENT" },
+];
+
+const getItemsFromList = (list: ShoppingListGetDTO | null): ShoppingListItemGetDTO[] => {
+	if (!list) {
+		return [];
+	}
+	return list.items ?? list.shoppingListItems ?? [];
 };
 
 const ShoppingListsPage: React.FC = () => {
-  const apiService = useApi();
-  const [addForm] = Form.useForm<AddItemFormValues>();
-  const [editForm] = Form.useForm<ItemPutDTO>();
-  const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(
-    null,
-  );
-  const [ingredients, setIngredients] = useState<IngredientGetDTO[]>([]);
-  const [isLoadingList, setIsLoadingList] = useState(true);
-  const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
-  const [isAdding, setIsAdding] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [busyItemIds, setBusyItemIds] = useState<number[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [selectedItem, setSelectedItem] =
-    useState<ShoppingListItemGetDTO | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
+	const apiService = useApi();
+	const [addForm] = Form.useForm<AddItemFormValues>();
+	const [editForm] = Form.useForm<ItemPutDTO>();
+	const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(null);
+	const [ingredients, setIngredients] = useState<IngredientGetDTO[]>([]);
+	const [isLoadingList, setIsLoadingList] = useState(true);
+	const [isLoadingIngredients, setIsLoadingIngredients] = useState(true);
+	const [isAdding, setIsAdding] = useState(false);
+	const [isUpdating, setIsUpdating] = useState(false);
+	const [busyItemIds, setBusyItemIds] = useState<number[]>([]);
+	const [errorMessage, setErrorMessage] = useState("");
+	const [successMessage, setSuccessMessage] = useState("");
+	const [selectedItem, setSelectedItem] = useState<ShoppingListItemGetDTO | null>(null);
+	const [isEditOpen, setIsEditOpen] = useState(false);
 
-  const items = useMemo(() => getItemsFromList(shoppingList), [shoppingList]);
+	const items = useMemo(() => getItemsFromList(shoppingList), [shoppingList]);
 
 	const fetchShoppingList = useCallback(
 		async (showLoader = true) => {
@@ -104,245 +121,234 @@ const ShoppingListsPage: React.FC = () => {
 		[apiService],
 	);
 
-  const fetchIngredients = useCallback(async () => {
-    setIsLoadingIngredients(true);
-    try {
-      const data = await apiService.get<IngredientGetDTO[]>("/ingredients");
-      setIngredients(data);
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Could not load ingredients.");
-      }
-    } finally {
-      setIsLoadingIngredients(false);
-    }
-  }, [apiService]);
+	const fetchIngredients = useCallback(async () => {
+		setIsLoadingIngredients(true);
+		try {
+			const data = await apiService.get<IngredientGetDTO[]>("/ingredients");
+			setIngredients(data);
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not load ingredients.");
+			}
+		} finally {
+			setIsLoadingIngredients(false);
+		}
+	}, [apiService]);
 
-  useEffect(() => {
-    fetchShoppingList(true);
-  }, [fetchShoppingList]);
+	useEffect(() => {
+		fetchShoppingList(true);
+	}, [fetchShoppingList]);
 
-  useEffect(() => {
-    fetchIngredients();
-  }, [fetchIngredients]);
+	useEffect(() => {
+		fetchIngredients();
+	}, [fetchIngredients]);
 
-  const markItemBusy = (itemId: number, isBusy: boolean) => {
-    setBusyItemIds((prev) => {
-      if (isBusy && !prev.includes(itemId)) {
-        return [...prev, itemId];
-      }
-      if (!isBusy) {
-        return prev.filter((id) => id !== itemId);
-      }
-      return prev;
-    });
-  };
+	const markItemBusy = (itemId: number, isBusy: boolean) => {
+		setBusyItemIds((prev) => {
+			if (isBusy && !prev.includes(itemId)) {
+				return [...prev, itemId];
+			}
+			if (!isBusy) {
+				return prev.filter((id) => id !== itemId);
+			}
+			return prev;
+		});
+	};
 
-  const handleAddItem = async (values: AddItemFormValues) => {
-    const cleanName = values.ingredientName.trim();
-    if (!cleanName) {
-      setErrorMessage("Ingredient name must be provided.");
-      return;
-    }
-    const cleanDescription = values.ingredientDescription.trim();
-    if (!cleanDescription) {
-      setErrorMessage("Ingredient description must be provided.");
-      return;
-    }
+	const handleAddItem = async (values: AddItemFormValues) => {
+		const cleanName = values.ingredientName.trim();
+		if (!cleanName) {
+			setErrorMessage("Ingredient name must be provided.");
+			return;
+		}
+		const cleanDescription = (values.ingredientDescription ?? "").trim();
+		setErrorMessage("");
+		setSuccessMessage("");
+		setIsAdding(true);
+		try {
+			const cleanUnit = values.standardUnit;
+			const cleanCategory = values.category;
+			const normalizedName = cleanName.toLowerCase();
+			let ingredient = ingredients.find(
+				(item) => (item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName,
+			);
 
-    setErrorMessage("");
-    setSuccessMessage("");
-    setIsAdding(true);
-    try {
-      const cleanUnit = values.unit;
-      const normalizedName = cleanName.toLowerCase();
-      let ingredient = ingredients.find(
-        (item) =>
-          (item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName,
-      );
+			if (!ingredient?.id) {
+				const createPayload: IngredientPostDTO = {
+					ingredientName: cleanName,
+					ingredientDescription: cleanDescription,
+					standardUnit: cleanUnit,
+					category: cleanCategory,
+				};
 
-      if (!ingredient?.id) {
-        const createPayload: IngredientPostDTO = {
-          ingredientName: cleanName,
-          ingredientDescription: cleanDescription,
-          unit: cleanUnit,
-        };
+				const createdIngredient = await apiService.post<IngredientGetDTO>(
+					"/ingredients",
+					createPayload,
+				);
 
-        const createdIngredient = await apiService.post<IngredientGetDTO>(
-          "/ingredients",
-          createPayload,
-        );
+				ingredient = createdIngredient;
+				setIngredients((prev) => [...prev, createdIngredient]);
+			}
 
-        ingredient = createdIngredient;
-        setIngredients((prev) => [...prev, createdIngredient]);
-      }
-
-      if (!ingredient.id) {
-        setErrorMessage("Ingredient was created but no id was returned.");
-        return;
-      }
+			if (!ingredient.id) {
+				setErrorMessage("Ingredient was created but no id was returned.");
+				return;
+			}
 
 			const shoppingPayload: ShoppingListItemPostDTO = {
 				ingredientId: ingredient.id,
+				ingredientName: cleanName ?? ingredient.ingredientName,
+				ingredientDescription: cleanDescription ?? ingredient.ingredientDescription,
 				quantity: values.quantity,
-				ingredientCategory: values.ingredientCategory,
+				category: cleanCategory ?? ingredient.category,
+				unit: cleanUnit ?? ingredient.standardUnit,
 			};
 
-      await apiService.post<ShoppingListItemGetDTO>(
-        "/groups/me/shopping-list/items",
-        shoppingPayload,
-      );
-      setSuccessMessage("Item added to shopping list.");
-      addForm.resetFields();
-      await fetchIngredients();
-      await fetchShoppingList(false);
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Could not add the item.");
-      }
-    } finally {
-      setIsAdding(false);
-    }
-  };
+			await apiService.post<ShoppingListItemGetDTO>(
+				"/groups/me/shopping-list/items",
+				shoppingPayload,
+			);
+			setSuccessMessage("Item added to shopping list.");
+			addForm.resetFields();
+			await fetchIngredients();
+			await fetchShoppingList(false);
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not add the item.");
+			}
+		} finally {
+			setIsAdding(false);
+		}
+	};
 
-  const loadItemById = async (
-    itemId: number,
-  ): Promise<ShoppingListItemGetDTO | null> => {
-    setErrorMessage("");
-    try {
-      return await apiService.get<ShoppingListItemGetDTO>(
-        `/groups/me/shopping-list/items/${itemId}`,
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Could not load item details.");
-      }
-      return null;
-    }
-  };
+	const loadItemById = async (itemId: number): Promise<ShoppingListItemGetDTO | null> => {
+		setErrorMessage("");
+		try {
+			return await apiService.get<ShoppingListItemGetDTO>(
+				`/groups/me/shopping-list/items/${itemId}`,
+			);
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not load item details.");
+			}
+			return null;
+		}
+	};
 
-  const handleOpenEdit = async (itemId?: number) => {
-    if (!itemId) {
-      setErrorMessage("Item has no id and cannot be edited.");
-      return;
-    }
-    const item = await loadItemById(itemId);
-    if (!item) {
-      return;
-    }
-    setSelectedItem(item);
-    editForm.setFieldsValue({
-      ingredientId: item.ingredientId,
-      quantity: item.quantity,
-    });
-    setIsEditOpen(true);
-  };
+	const handleOpenEdit = async (itemId?: number) => {
+		if (!itemId) {
+			setErrorMessage("Item has no id and cannot be edited.");
+			return;
+		}
+		const item = await loadItemById(itemId);
+		if (!item) {
+			return;
+		}
+		setSelectedItem(item);
+		editForm.setFieldsValue({
+			ingredientId: item.ingredientId,
+			quantity: item.quantity,
+		});
+		setIsEditOpen(true);
+	};
 
-  const handleUpdateItem = async (values: ItemPutDTO) => {
-    if (!selectedItem?.id) {
-      setErrorMessage("No item selected for update.");
-      return;
-    }
-    setErrorMessage("");
-    setSuccessMessage("");
-    setIsUpdating(true);
-    try {
-      await apiService.put<void>(
-        `/groups/me/shopping-list/items/${selectedItem.id}`,
-        values,
-      );
-      setSuccessMessage("Item updated.");
-      setIsEditOpen(false);
-      await fetchShoppingList();
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Could not update the item.");
-      }
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+	const handleUpdateItem = async (values: ItemPutDTO) => {
+		if (!selectedItem?.id) {
+			setErrorMessage("No item selected for update.");
+			return;
+		}
+		setErrorMessage("");
+		setSuccessMessage("");
+		setIsUpdating(true);
+		try {
+			await apiService.put<void>(`/groups/me/shopping-list/items/${selectedItem.id}`, values);
+			setSuccessMessage("Item updated.");
+			setIsEditOpen(false);
+			await fetchShoppingList();
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not update the item.");
+			}
+		} finally {
+			setIsUpdating(false);
+		}
+	};
 
-  const handleToggleBought = async (
-    item: ShoppingListItemGetDTO,
-    isBought: boolean,
-  ) => {
-    if (!item.id) {
-      setErrorMessage("Item has no id and cannot be updated.");
-      return;
-    }
-    setErrorMessage("");
-    markItemBusy(item.id, true);
-    try {
-      const payload: ItemPatchDTO = { isBought };
-      await apiService.patch<ShoppingListItemGetDTO>(
-        `/groups/me/shopping-list/items/${item.id}`,
-        payload,
-      );
-      setShoppingList((prev) => {
-        if (!prev) {
-          return prev;
-        }
-        const updatedItems = getItemsFromList(prev).map((entry) =>
-          entry.id === item.id ? { ...entry, isBought } : entry,
-        );
-        if (prev.items) {
-          return { ...prev, items: updatedItems };
-        }
-        return { ...prev, shoppingListItems: updatedItems };
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Could not update bought status.");
-      }
-    } finally {
-      markItemBusy(item.id, false);
-    }
-  };
+	const handleToggleBought = async (item: ShoppingListItemGetDTO, isBought: boolean) => {
+		if (!item.id) {
+			setErrorMessage("Item has no id and cannot be updated.");
+			return;
+		}
+		setErrorMessage("");
+		markItemBusy(item.id, true);
+		try {
+			const payload: ItemPatchDTO = { isBought };
+			await apiService.patch<ShoppingListItemGetDTO>(
+				`/groups/me/shopping-list/items/${item.id}`,
+				payload,
+			);
+			setShoppingList((prev) => {
+				if (!prev) {
+					return prev;
+				}
+				const updatedItems = getItemsFromList(prev).map((entry) =>
+					entry.id === item.id ? { ...entry, isBought } : entry,
+				);
+				if (prev.items) {
+					return { ...prev, items: updatedItems };
+				}
+				return { ...prev, shoppingListItems: updatedItems };
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not update bought status.");
+			}
+		} finally {
+			markItemBusy(item.id, false);
+		}
+	};
 
-  const handleDeleteItem = async (itemId?: number) => {
-    if (!itemId) {
-      setErrorMessage("Item has no id and cannot be deleted.");
-      return;
-    }
-    setErrorMessage("");
-    setSuccessMessage("");
-    markItemBusy(itemId, true);
-    try {
-      await apiService.delete<void>(`/groups/me/shopping-list/items/${itemId}`);
-      setSuccessMessage("Item deleted.");
-      setShoppingList((prev) => {
-        if (!prev) {
-          return prev;
-        }
-        const filteredItems = getItemsFromList(prev).filter(
-          (entry) => entry.id !== itemId,
-        );
-        if (prev.items) {
-          return { ...prev, items: filteredItems };
-        }
-        return { ...prev, shoppingListItems: filteredItems };
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("Could not delete the item.");
-      }
-    } finally {
-      markItemBusy(itemId, false);
-    }
-  };
+	const handleDeleteItem = async (itemId?: number) => {
+		if (!itemId) {
+			setErrorMessage("Item has no id and cannot be deleted.");
+			return;
+		}
+		setErrorMessage("");
+		setSuccessMessage("");
+		markItemBusy(itemId, true);
+		try {
+			await apiService.delete<void>(`/groups/me/shopping-list/items/${itemId}`);
+			setSuccessMessage("Item deleted.");
+			setShoppingList((prev) => {
+				if (!prev) {
+					return prev;
+				}
+				const filteredItems = getItemsFromList(prev).filter((entry) => entry.id !== itemId);
+				if (prev.items) {
+					return { ...prev, items: filteredItems };
+				}
+				return { ...prev, shoppingListItems: filteredItems };
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				setErrorMessage(error.message);
+			} else {
+				setErrorMessage("Could not delete the item.");
+			}
+		} finally {
+			markItemBusy(itemId, false);
+		}
+	};
 
 	const columns: TableColumnsType<ShoppingListItemGetDTO> = [
 		{
@@ -370,9 +376,7 @@ const ShoppingListsPage: React.FC = () => {
 		{
 			title: "Category",
 			key: "category",
-			render: (_, record) => (
-				<span>{record.ingredientCategory ?? `${record.ingredientCategory ?? "-"}`}</span>
-			),
+			render: (_, record) => <span>{record.category ?? "-"}</span>,
 		},
 		{
 			title: "Quantity",
@@ -416,28 +420,31 @@ const ShoppingListsPage: React.FC = () => {
 		},
 	];
 
-  const ingredientOptions = ingredients.map((ingredient) => ({
-    value: ingredient.ingredientName ?? "",
-    label: ingredient.ingredientName ?? "",
-  }));
+	const ingredientOptions = ingredients.map((ingredient) => ({
+		value: ingredient.ingredientName ?? "",
+		label: ingredient.ingredientName ?? "",
+	}));
 
-  const handleIngredientSelect = (value: string) => {
-    const selectedIngredient = ingredients.find(
-      (ingredient) => ingredient.ingredientName === value,
-    );
-    if (!selectedIngredient) {
-      return;
-    }
-    if (selectedIngredient.ingredientDescription?.trim()) {
-      addForm.setFieldValue(
-        "ingredientDescription",
-        selectedIngredient.ingredientDescription.trim(),
-      );
-    }
-    if (selectedIngredient.unit?.trim()) {
-      addForm.setFieldValue("unit", selectedIngredient.unit);
-    }
-  };
+	const handleIngredientSelect = (value: string) => {
+		const selectedIngredient = ingredients.find(
+			(ingredient) => ingredient.ingredientName === value,
+		);
+		if (!selectedIngredient) {
+			return;
+		}
+		if (selectedIngredient.ingredientDescription?.trim()) {
+			addForm.setFieldValue(
+				"ingredientDescription",
+				selectedIngredient.ingredientDescription.trim(),
+			);
+		}
+		if (selectedIngredient.standardUnit?.trim()) {
+			addForm.setFieldValue("standardUnit", selectedIngredient.standardUnit);
+		}
+		if (selectedIngredient.category) {
+			addForm.setFieldValue("category", selectedIngredient.category);
+		}
+	};
 
 	const [search, setSearch] = useState("");
 
@@ -451,39 +458,39 @@ const ShoppingListsPage: React.FC = () => {
 		setAddFormVisible(!addFormVisible);
 	};
 
-  return (
-    <DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
-      <div className="mb-8 flex items-center justify-between gap-4">
-        <Title level={2} className="!m-0 !text-slate-900">
-          Shopping Lists
-        </Title>
+	return (
+		<DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
+			<div className="mb-8 flex items-center justify-between gap-4">
+				<Title level={2} className="!m-0 !text-slate-900">
+					Shopping Lists
+				</Title>
 				<div className={"flex gap-2"}>
 					<Button className="pm-button" onClick={handleAddFormVisibleChange}>
 						{addFormVisible ? (
 							<div className={"flex items-center gap-2"}>
-								<PlusCircleOutlined />
+								<CloseCircleOutlined />
 								Close Form
 							</div>
 						) : (
 							<div className={"flex items-center gap-2"}>
-								<CloseCircleOutlined />
+								<PlusCircleOutlined />
 								Add Item
 							</div>
 						)}
 					</Button>
-      </div>
-</div>
+				</div>
+			</div>
 
-      {successMessage ? (
-        <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
-          {successMessage}
-        </div>
-      ) : null}
-      {errorMessage ? (
-        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-          {errorMessage}
-        </div>
-      ) : null}
+			{successMessage ? (
+				<div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
+					{successMessage}
+				</div>
+			) : null}
+			{errorMessage ? (
+				<div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
+					{errorMessage}
+				</div>
+			) : null}
 
 			{addFormVisible && (
 				<Card className="rounded-3xl border border-primary-200 bg-white/90 addFormVisible:bg-black">
@@ -516,10 +523,18 @@ const ShoppingListsPage: React.FC = () => {
 						>
 							<InputNumber min={0.1} step={0.1} placeholder="e.g. 2" />
 						</Form.Item>
-						<Form.Item label="Category" name="ingredientCategory">
-							<Input placeholder="e.g. Vegetables" />
+						<Form.Item
+							label="Category"
+							name="category"
+							rules={[{ required: true, message: "Required" }]}
+						>
+							<Select className="min-w-40" options={categoryOptions} placeholder="Choose" />
 						</Form.Item>
-						<Form.Item label="Unit" name="unit" rules={[{ required: true, message: "Required" }]}>
+						<Form.Item
+							label="Unit"
+							name="standardUnit"
+							rules={[{ required: true, message: "Required" }]}
+						>
 							<Select className="min-w-28" options={unitOptions} placeholder="Choose" />
 						</Form.Item>
 						<Form.Item>
@@ -531,51 +546,53 @@ const ShoppingListsPage: React.FC = () => {
 				</Card>
 			)}
 
-      <Card className="rounded-3xl border border-primary-200 bg-white/90">
-        <Title level={4} className="!mt-0">
-          Current items
-        </Title>
-        {isLoadingList ? (
-          <div className="flex items-center justify-center py-10">
-            <Spin size="large" />
-          </div>
-        ) : (
-          <Table<ShoppingListItemGetDTO>
-            columns={columns}
-            dataSource={items}
-            pagination={{ pageSize: 8 }}
-            rowKey={(record, index) => `${record.id ?? "temp"}-${index}`}
-          />
-        )}
-      </Card>
+			<Card className="rounded-3xl border border-primary-200 bg-white/90">
+				<Title level={4} className="!mt-0">
+					Current items
+				</Title>
+				{isLoadingList ? (
+					<div className="flex items-center justify-center py-10">
+						<Spin size="large" />
+					</div>
+				) : (
+					<Table<ShoppingListItemGetDTO>
+						columns={columns}
+						dataSource={items}
+						pagination={{ pageSize: 8 }}
+						rowKey={(record) =>
+							`${record.id ?? record.ingredientId ?? record.ingredientName ?? "temp"}`
+						}
+					/>
+				)}
+			</Card>
 
-      <Modal
-        title="Edit item"
-        open={isEditOpen}
-        onCancel={() => setIsEditOpen(false)}
-        onOk={() => editForm.submit()}
-        confirmLoading={isUpdating}
-        okText="Save"
-      >
-        <Form form={editForm} layout="vertical" onFinish={handleUpdateItem}>
-          <Form.Item
-            label="Ingredient ID"
-            name="ingredientId"
-            rules={[{ required: true, message: "Required" }]}
-          >
-            <InputNumber className="w-full" min={1} />
-          </Form.Item>
-          <Form.Item
-            label="Quantity"
-            name="quantity"
-            rules={[{ required: true, message: "Required" }]}
-          >
-            <InputNumber className="w-full" min={0.1} step={0.1} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </DashboardShell>
-  );
+			<Modal
+				title="Edit item"
+				open={isEditOpen}
+				onCancel={() => setIsEditOpen(false)}
+				onOk={() => editForm.submit()}
+				confirmLoading={isUpdating}
+				okText="Save"
+			>
+				<Form form={editForm} layout="vertical" onFinish={handleUpdateItem}>
+					<Form.Item
+						label="Ingredient ID"
+						name="ingredientId"
+						rules={[{ required: true, message: "Required" }]}
+					>
+						<InputNumber className="w-full" min={1} />
+					</Form.Item>
+					<Form.Item
+						label="Quantity"
+						name="quantity"
+						rules={[{ required: true, message: "Required" }]}
+					>
+						<InputNumber className="w-full" min={0.1} step={0.1} />
+					</Form.Item>
+				</Form>
+			</Modal>
+		</DashboardShell>
+	);
 };
 
 export default ShoppingListsPage;

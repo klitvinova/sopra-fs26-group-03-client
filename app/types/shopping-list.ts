@@ -7,7 +7,7 @@ export interface ShoppingListItemGetDTO {
 	isBought: boolean;
 	ingredientId: number;
 	ingredientName: string;
-	ingredientCategory: IngredientCategory;
+	category: IngredientCategory;
 	unit: Unit;
 }
 
@@ -15,18 +15,21 @@ export interface ShoppingListGetDTO {
 	id?: number;
 	items?: ShoppingListItemGetDTO[];
 	shoppingListItems?: ShoppingListItemGetDTO[];
-	ingredientCategory: IngredientCategory;
+	category: IngredientCategory;
 }
 
 export interface ShoppingListItemPostDTO {
 	ingredientId: number;
-	ingredientCategory: IngredientCategory;
+	ingredientName: string;
+	ingredientDescription: string;
+	category: IngredientCategory;
+	unit: Unit;
 	quantity: number;
 }
 
 export interface ItemPutDTO {
 	ingredientId: number;
-	ingredientCategory: IngredientCategory;
+	category?: IngredientCategory;
 	quantity: number;
 }
 

@@ -18,23 +18,23 @@ export type IngredientCategory =
 
 export interface IngredientGetDTO {
 	id?: number;
-	ingredientName?: string;
+	ingredientName: string;
 	ingredientDescription?: string;
-	unit: Unit;
-	ingredientCategory?: IngredientCategory;
+	standardUnit: Unit;
+	category?: IngredientCategory;
 }
 
 export interface IngredientPostDTO {
 	ingredientName: string;
 	ingredientDescription: string;
-	unit: Unit;
-	ingredientCategory?: IngredientCategory;
+	standardUnit: Unit;
+	category?: IngredientCategory;
 }
 
 export interface AddItemFormValues {
 	ingredientName: string;
 	ingredientDescription: string;
-	ingredientCategory: IngredientCategory;
+	category: IngredientCategory;
 	quantity: number;
-	unit: Unit;
+	standardUnit: Unit;
 }

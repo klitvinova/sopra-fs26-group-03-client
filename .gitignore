@@ -150,3 +150,6 @@ yarn-error.log*
 /.idea/shelf/Uncommitted_changes_before_Update_at_05_04_2026__09_03__Changes_.xml
 /.idea/vcs.xml
 /.idea/workspace.xml
+/.idea/codeStyles/codeStyleConfig.xml
+/.idea/easy-i18n.xml
+/.idea/codeStyles/Project.xml
