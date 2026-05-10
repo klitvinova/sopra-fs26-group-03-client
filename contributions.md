@@ -80,7 +80,7 @@ reason).
 
 ---
 
-## Contributions Week 6 - [Begin Date] to [End Date]
+## Contributions Week 6 - 27.04.2026 to 03.05.2026
 
 | **Student**         | **Date**   | **Link to Commit** | **Description** | **Relevance** |
 | ------------------- | ---------- | ------------------ | --------------- | ------------- |
