@@ -1,37 +1,43 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 
+import React, { useState } from "react";
 import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
-import { Button, Form, Input, Card, Typography } from "antd";
+import { Button, Form, Input, Card, App } from "antd";
 import Image from "next/image";
 
-const { Text } = Typography;
-
-interface FormFieldProps {
-  label: string;
-  value: string;
+interface LoginFormValues {
+  username: string;
+  password: string;
 }
 
 const Login: React.FC = () => {
+  const { notification } = App.useApp();
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (values: FormFieldProps) => {
+
+  const handleLogin = async (values: LoginFormValues) => {
+    setLoading(true);
     try {
       await apiService.post<User>("/auth/login", values);
-
-      // Navigate to the user overview
       router.push("/dashboard");
     } catch (error) {
-      if (error instanceof Error) {
-        alert(`Something went wrong during the login:\n${error.message}`);
-      } else {
-        console.error("An unknown error occurred during login.");
-      }
+      const message = error instanceof Error ? error.message : "An unexpected error occurred during login.";
+      notification.error({
+        message: "Login Failed",
+        description: message,
+        placement: "topRight",
+      });
+    } finally {
+      setLoading(false);
     }
   };
+
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white px-4 py-12">
       {/* Mini Logo for Auth */}
@@ -85,14 +91,14 @@ const Login: React.FC = () => {
             <Button
               htmlType="submit"
               type="primary"
-              className="pm-button-primary w-full !h-14 !rounded-2xl !text-lg !font-bold"
+              loading={loading}
+              className="login-button pm-button-primary w-full !h-11 !font-semibold"
             >
               Log in
             </Button>
           </Form.Item>
 
-          <div className="text-center">
-            <Text className="text-slate-400">Don&apos;t have an account?</Text>
+          <Form.Item className="mb-0">
             <Button
               type="link"
               className="!text-orange-500 !font-bold hover:!text-orange-600"
@@ -100,7 +106,7 @@ const Login: React.FC = () => {
             >
               Create one now
             </Button>
-          </div>
+          </Form.Item>
         </Form>
       </Card>
     </div>

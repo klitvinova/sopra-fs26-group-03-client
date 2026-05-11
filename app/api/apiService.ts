@@ -33,16 +33,25 @@ export class ApiService {
         const errorInfo = await res.json();
         if (errorInfo?.message) {
           errorDetail = errorInfo.message;
+        } else if (typeof errorInfo === "string") {
+          errorDetail = errorInfo;
         } else {
           errorDetail = JSON.stringify(errorInfo);
         }
       } catch {
         // If parsing fails, keep using res.statusText
       }
-      const detailedMessage = `${errorMessage}${errorDetail}`;
+
+      // If the errorDetail already seems like a full message, don't prefix it with the generic errorMessage
+      const detailedMessage = errorDetail.includes(errorMessage.trim())
+        ? errorDetail
+        : `${errorMessage}${errorDetail}`;
+
       const error: ApplicationError = new Error(
         detailedMessage,
       ) as ApplicationError;
+
+
       error.info = JSON.stringify(
         { status: res.status, statusText: res.statusText },
         null,
@@ -74,39 +83,38 @@ export class ApiService {
     );
   }
 
-	/**
-	 * POST request.
-	 * @param endpoint - The API endpoint (e.g. "/users").
-	 * @param data - The payload to post.
-	 * @returns JSON data of type T.
-	 */
-	public async post<T>(endpoint: string, data: unknown): Promise<T> {
-		const url = `${this.baseURL}${endpoint}`;
-		const res = await fetch(url, {
-			method: "POST",
-			credentials: "include",
-			headers: this.defaultHeaders,
-			body: JSON.stringify(data),
-		});
-		return this.processResponse<T>(res, "An error occurred while posting the data.\n");
-	}
+  /**
+   * POST request.
+   * @param endpoint - The API endpoint (e.g. "/users").
+   * @param data - The payload to post.
+   * @returns JSON data of type T.
+   */
+  public async post<T>(endpoint: string, data: unknown): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const res = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: this.defaultHeaders,
+      body: JSON.stringify(data),
+    });
+    return this.processResponse<T>(res, "An error occurred while posting the data.\n");
+  }
 
-	/**
-	 * POST request with multipart/form-data payload.
-	 * @param endpoint - The API endpoint (e.g. "/uploads").
-	 * @param data - The FormData payload.
-	 * @returns JSON data of type T.
-	 */
-	public async postFormData<T>(endpoint: string, data: FormData): Promise<T> {
-		const url = `${this.baseURL}${endpoint}`;
-		const res = await fetch(url, {
-			method: "POST",
-			credentials: "include",
-			headers: {},
-			body: data,
-		});
-		return this.processResponse<T>(res, "An error occurred while posting the form data.\n");
-	}
+  /**
+   * POST request with multipart/form-data payload.
+   * @param endpoint - The API endpoint (e.g. "/uploads").
+   * @param data - The FormData payload.
+   * @returns JSON data of type T.
+   */
+  public async postFormData<T>(endpoint: string, data: FormData): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    const res = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      body: data,
+    });
+    return this.processResponse<T>(res, "An error occurred while posting the form data.\n");
+  }
 
   /**
    * PUT request.
