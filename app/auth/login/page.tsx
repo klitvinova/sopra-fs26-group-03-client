@@ -23,7 +23,10 @@ const Login: React.FC = () => {
   const handleLogin = async (values: LoginFormValues) => {
     setLoading(true);
     try {
-      await apiService.post<User>("/auth/login", values);
+      const response = await apiService.post<User>("/auth/login", values);
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+      }
       router.push("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "An unexpected error occurred during login.";

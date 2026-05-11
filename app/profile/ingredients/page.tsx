@@ -1,17 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Button, Card, Spin, Table, Typography } from "antd";
+import { Card, Spin, Table, Typography } from "antd";
 import type { TableColumnsType } from "antd";
-import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import type { IngredientGetDTO } from "@/types/ingredientCategory";
 import PageHeader from "@/components/page-header";
-import { sort } from "next/dist/build/webpack/loaders/css-loader/src/utils";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const ingredientColumns: TableColumnsType<IngredientGetDTO> = [
 	{
@@ -42,23 +39,16 @@ const ingredientColumns: TableColumnsType<IngredientGetDTO> = [
 
 const UserIngredientsPage: React.FC = () => {
 	const apiService = useApi();
-	const params = useParams<{ id?: string | string[] }>();
 	const [ingredients, setIngredients] = useState<IngredientGetDTO[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
-	const [errorMessage, setErrorMessage] = useState("");
 
 	const fetchIngredients = useCallback(async () => {
 		setIsLoading(true);
-		setErrorMessage("");
 		try {
 			const data = await apiService.get<IngredientGetDTO[]>('/ingredients');
 			setIngredients(Array.isArray(data) ? data.sort((a, b) => a.ingredientName.localeCompare(b.ingredientName)) : []);
 		} catch (error) {
-			if (error instanceof Error) {
-				setErrorMessage(error.message);
-			} else {
-				setErrorMessage("Could not load the ingredients.");
-			}
+			console.error("Could not load the ingredients.", error);
 		} finally {
 			setIsLoading(false);
 		}

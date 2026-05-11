@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
-import { Button, Card, Input } from "antd";
+import { Button, Input } from "antd";
 import { useRouter } from "next/navigation";
 import { EditOutlined, SaveOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import PageHeader from "@/components/page-header";
