@@ -111,9 +111,6 @@ export class ApiService {
     const res = await fetch(url, {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
       body: data,
     });
     return this.processResponse<T>(res, "An error occurred while posting the form data.\n");
