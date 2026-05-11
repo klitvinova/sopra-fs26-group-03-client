@@ -24,7 +24,10 @@ const Register: React.FC = () => {
   const handleRegister = async (values: RegisterFormValues) => {
     setLoading(true);
     try {
-      await apiService.post<User>("/auth/register", values);
+      const response = await apiService.post<User>("/auth/register", values);
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+      }
       router.push("/dashboard");
     } catch (error) {
       const message = error instanceof Error ? error.message : "An unexpected error occurred during registration.";
