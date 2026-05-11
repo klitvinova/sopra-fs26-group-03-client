@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Modal, Form, Input, InputNumber, Select, Button, Space, Typography, Card } from "antd";
+import { Modal, Form, Input, InputNumber, Select, Button, Typography, Card } from "antd";
 import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
 import { Recipe, RecipePutDTO } from "@/types/recipe";
-import { Unit } from "@/types/unit";
 import { IngredientCategory } from "@/types/ingredientCategory";
 
 const { Text } = Typography;
