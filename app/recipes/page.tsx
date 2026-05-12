@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Typography, Card, Tag, Spin, message, Button } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Typography, Card, Tag, Spin, message, List } from "antd";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import { Recipe, RecipePutDTO } from "@/types/recipe";
-import EditRecipeModal from "@/components/EditRecipeModal";
 
 const { Title, Paragraph, Text } = Typography;
 

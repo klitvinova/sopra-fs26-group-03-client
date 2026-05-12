@@ -19,9 +19,12 @@ export interface ShoppingListGetDTO {
 }
 
 export interface ShoppingListItemPostDTO {
+	ingredientName: string;
+	ingredientDescription: string;
 	ingredientId: number;
-	ingredientCategory: IngredientCategory;
+	category: IngredientCategory;
 	quantity: number;
+	unit: Unit;
 }
 
 export interface ItemPutDTO {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import { Card, Spin, Table, Typography } from "antd";
 import type { TableColumnsType } from "antd";
 import { useApi } from "@/hooks/useApi";
