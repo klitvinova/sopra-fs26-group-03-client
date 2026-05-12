@@ -18,7 +18,7 @@ export default function PageHeader({ title }: PageHeaderProps) {
     ? "Loading..."
     : hasGroup
       ? `Group: ${group?.name?.trim() || "Your Group"}`
-      : "Join Group";
+      : "Manage Groups";
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
