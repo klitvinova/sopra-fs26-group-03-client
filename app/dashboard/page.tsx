@@ -16,8 +16,10 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
+import GroupRequired from "@/components/group-required";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
+import { useGroupMembership } from "@/hooks/useGroupMembership";
 import { User } from "@/types/user";
 import { PantryGetDTO } from "@/types/pantry";
 import { ShoppingListGetDTO } from "@/types/shopping-list";
@@ -29,6 +31,7 @@ const { Title, Text, Paragraph } = Typography;
 const Dashboard: React.FC = () => {
 	const apiService = useApi();
 	const router = useRouter();
+  const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
 	const [user, setUser] = useState<User | null>(null);
 	const [, setPantry] = useState<PantryGetDTO | null>(null);
 	const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(null);
@@ -37,6 +40,11 @@ const Dashboard: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
+    if (!hasGroup) {
+      setIsLoading(false);
+      return;
+    }
+
 		const fetchDashboardData = async () => {
 			setIsLoading(true);
 			setError(null);
@@ -74,7 +82,7 @@ const Dashboard: React.FC = () => {
 		};
 
 		fetchDashboardData();
-	}, [apiService]);
+  }, [apiService, hasGroup]);
 
 	const getMealIcon = (type: string) => {
 		switch (type) {
@@ -85,6 +93,24 @@ const Dashboard: React.FC = () => {
 			default: return "🥣";
 		}
 	};
+
+  if (isGroupLoading) {
+    return (
+      <DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
+        <div className="flex items-center justify-center py-20">
+          <Spin size="large" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  if (!hasGroup) {
+    return (
+      <DashboardShell headerTitle="Dashboard" selectedMenuKey="1">
+        <GroupRequired featureName="Dashboard" />
+      </DashboardShell>
+    );
+  }
 
 	if (isLoading) {
 		return (

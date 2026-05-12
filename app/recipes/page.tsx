@@ -3,13 +3,16 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { Typography, Card, Tag, Spin, message, List } from "antd";
 import DashboardShell from "@/components/dashboard-shell";
+import GroupRequired from "@/components/group-required";
 import { useApi } from "@/hooks/useApi";
+import { useGroupMembership } from "@/hooks/useGroupMembership";
 import { Recipe, RecipePutDTO } from "@/types/recipe";
 
 const { Title, Paragraph, Text } = Typography;
 
 const RecipesPage: React.FC = () => {
   const api = useApi();
+  const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +34,12 @@ const RecipesPage: React.FC = () => {
   }, [api]);
 
   useEffect(() => {
+    if (!hasGroup) {
+      setLoading(false);
+      return;
+    }
     fetchRecipes();
-  }, [fetchRecipes]);
+  }, [fetchRecipes, hasGroup]);
 
   const handleEditClick = (recipe: Recipe) => {
     setEditingRecipe(recipe);
@@ -54,6 +61,24 @@ const RecipesPage: React.FC = () => {
       setIsSaving(false);
     }
   };
+
+  if (isGroupLoading) {
+    return (
+      <DashboardShell headerTitle="Recipes" selectedMenuKey="4">
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      </DashboardShell>
+    );
+  }
+
+  if (!hasGroup) {
+    return (
+      <DashboardShell headerTitle="Recipes" selectedMenuKey="4">
+        <GroupRequired featureName="Recipes" />
+      </DashboardShell>
+    );
+  }
 
   return (
     <DashboardShell headerTitle="Recipes" selectedMenuKey="4">

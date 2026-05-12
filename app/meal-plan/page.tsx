@@ -18,7 +18,9 @@ import {
 } from "antd";
 import { PlusOutlined, ShoppingCartOutlined, DeleteOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
+import GroupRequired from "@/components/group-required";
 import { useApi } from "@/hooks/useApi";
+import { useGroupMembership } from "@/hooks/useGroupMembership";
 import { MealPlan, MealPlanPostDTO, MealType, MissingIngredient } from "@/types/meal-plan";
 import { Recipe } from "@/types/recipe";
 import dayjs, { Dayjs } from "dayjs";
@@ -28,6 +30,7 @@ const { Option } = Select;
 
 const MealPlanPage: React.FC = () => {
 	const api = useApi();
+	const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
 	const [mealPlans, setMealPlans] = useState<MealPlan[]>([]);
 	const [recipes, setRecipes] = useState<Recipe[]>([]);
 	const [missingIngredients, setMissingIngredients] = useState<MissingIngredient[]>([]);
@@ -64,8 +67,12 @@ const MealPlanPage: React.FC = () => {
 	}, [api]);
 
 	useEffect(() => {
+		if (!hasGroup) {
+			setLoading(false);
+			return;
+		}
 		fetchAllData();
-	}, [fetchAllData]);
+	}, [fetchAllData, hasGroup]);
 
 	const handleAddMeal = async (values: { mealType: MealType; recipeId: number }) => {
 		try {
@@ -146,6 +153,24 @@ const MealPlanPage: React.FC = () => {
 			</ul>
 		);
 	};
+
+	if (isGroupLoading) {
+		return (
+			<DashboardShell headerTitle="Meal Plan" selectedMenuKey="5">
+				<div className="flex justify-center py-40">
+					<Spin size="large" />
+				</div>
+			</DashboardShell>
+		);
+	}
+
+	if (!hasGroup) {
+		return (
+			<DashboardShell headerTitle="Meal Plan" selectedMenuKey="5">
+				<GroupRequired featureName="Meal Plan" />
+			</DashboardShell>
+		);
+	}
 
 	return (
 		<DashboardShell headerTitle="Meal Plan" selectedMenuKey="5">

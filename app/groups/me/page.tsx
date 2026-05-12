@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Button, Card, Divider, Input, Modal, Space, Spin, Tag, Tooltip, Typography, message } from "antd";
+import { Alert, Button, Card, Divider, Input, Modal, Space, Spin, Tag, Tooltip, Typography, message, notification } from "antd";
 import {
 	CopyOutlined,
 	DeleteOutlined,
@@ -11,6 +11,7 @@ import {
 	LogoutOutlined,
 	ReloadOutlined,
 	UserOutlined,
+	ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -27,7 +28,6 @@ export default function GroupMePage() {
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState<string>("");
-	const [joinedMessage, setJoinedMessage] = useState("");
 
 	const [isEditingName, setIsEditingName] = useState(false);
 	const [newGroupName, setNewGroupName] = useState("");
@@ -40,11 +40,28 @@ export default function GroupMePage() {
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    if (params.get("joined") === "1") {
-      setJoinedMessage(
-        `You successfully joined ${params.get("groupName") ?? "the group"}.`,
-      );
-    }
+    const action = params.get("action");
+    const groupName = params.get("groupName") ?? "the group";
+
+    if (action === "joined") {
+			notification.success({
+				message: "Joined group",
+				description: `You successfully joined ${groupName}.`,
+				placement: "topRight",
+			});
+		}
+
+		if (action === "created") {
+			notification.success({
+				message: "Group created",
+				description: `Your group \"${groupName}\" is ready.`,
+				placement: "topRight",
+			});
+		}
+
+		if (action === "joined" || action === "created") {
+			window.history.replaceState({}, "", "/groups/me");
+		}
   }, []);
 
 	const fetchData = useCallback(async () => {
@@ -164,7 +181,6 @@ export default function GroupMePage() {
 			<PageHeader title="Group Management" />
 			<div className="flex flex-1 flex-col items-center px-4 py-8">
 				<Card className="w-full max-w-2xl rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
-					{joinedMessage ? <Alert className="mb-6" message={joinedMessage} showIcon type="success" /> : null}
 
 					{isLoading ? (
 						<div className="flex items-center justify-center py-20">
@@ -322,6 +338,10 @@ export default function GroupMePage() {
 						</div>
 					)}
 				</Card>
+				<Button className={"pm-button-primary mt-5"} onClick={() => router.push("/dashboard")}>
+					<ArrowLeftOutlined></ArrowLeftOutlined>
+					Go to Dashboard
+				</Button>
 			</div>
 		</div>
 	);

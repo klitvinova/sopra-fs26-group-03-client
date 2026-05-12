@@ -24,7 +24,9 @@ import {
 	PlusCircleOutlined,
 } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
+import GroupRequired from "@/components/group-required";
 import { useApi } from "@/hooks/useApi";
+import { useGroupMembership } from "@/hooks/useGroupMembership";
 import type {
 	PantryItemGetDTO,
 	PantryItemPostDTO,
@@ -254,6 +256,7 @@ const DetectedIngredientRow: React.FC<DetectedIngredientRowProps> = ({
 
 const PantryPage: React.FC = () => {
 	const apiService = useApi();
+	const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
 	const [addForm] = Form.useForm<AddItemFormValues>();
 	const [editForm] = Form.useForm<PantryItemPutDTO>();
 	const [pantry, setPantry] = useState<PantryGetDTO | null>(null);
@@ -322,12 +325,20 @@ const PantryPage: React.FC = () => {
 	}, [apiService]);
 
 	useEffect(() => {
+		if (!hasGroup) {
+			setIsLoadingList(false);
+			return;
+		}
 		fetchPantry(true);
-	}, [fetchPantry]);
+	}, [fetchPantry, hasGroup]);
 
 	useEffect(() => {
+		if (!hasGroup) {
+			setIsLoadingIngredients(false);
+			return;
+		}
 		fetchIngredients();
-	}, [fetchIngredients]);
+	}, [fetchIngredients, hasGroup]);
 
 	const markItemBusy = (itemId: number, isBusy: boolean) => {
 		setBusyItemIds((prev) => {
@@ -655,6 +666,24 @@ const PantryPage: React.FC = () => {
 			detectedIngredientsForm.setFieldsValue({ ingredients: detectedIngredients });
 		}
 	}, [detectedIngredients, detectedIngredientsForm]);
+
+	if (isGroupLoading) {
+		return (
+			<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
+				<div className="flex items-center justify-center py-20">
+					<Spin size="large" />
+				</div>
+			</DashboardShell>
+		);
+	}
+
+	if (!hasGroup) {
+		return (
+			<DashboardShell headerTitle="Pantry" selectedMenuKey="2">
+				<GroupRequired featureName="Pantry" />
+			</DashboardShell>
+		);
+	}
 
 	return (
 		<DashboardShell headerTitle="Pantry" selectedMenuKey="2">

@@ -2,28 +2,23 @@
 
 import { Button } from "antd";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useApi } from "@/hooks/useApi";
+import { useGroupMembership } from "@/hooks/useGroupMembership";
 import { UserOutlined } from "@ant-design/icons";
 
 interface PageHeaderProps {
   title: string;
 }
 
-interface GroupMeResponse {
-  id?: number;
-  name?: string;
-  inviteCode?: string;
-  createdAt?: string;
-  members?: unknown[];
-}
-
 export default function PageHeader({ title }: PageHeaderProps) {
-  const apiService = useApi();
   const router = useRouter();
-  const [yourGroup, setYourGroup] = useState<string>("Loading...");
-  const [hasGroup, setHasGroup] = useState(false);
+  const { group, hasGroup, isLoading } = useGroupMembership();
+
+  const yourGroup = isLoading
+    ? "Loading..."
+    : hasGroup
+      ? `Group: ${group?.name?.trim() || "Your Group"}`
+      : "Manage Groups";
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -32,27 +27,6 @@ export default function PageHeader({ title }: PageHeaderProps) {
     router.push("/auth/login");
   };
 
-  useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const group = await apiService.get<GroupMeResponse>("/groups/me");
-        const groupName = group.name?.trim();
-        if (groupName) {
-          setYourGroup("Group: " + groupName);
-          setHasGroup(true);
-        } else {
-          setYourGroup("Join Group");
-          setHasGroup(false);
-        }
-      } catch (error) {
-        console.error("Could not fetch current group", error);
-        setYourGroup("Join Group");
-        setHasGroup(false);
-      }
-    };
-
-    fetchGroup();
-  }, [apiService]);
 
   return (
     <header className="border-b border-orange-100 bg-white/80 backdrop-blur-md sticky top-0 z-50">

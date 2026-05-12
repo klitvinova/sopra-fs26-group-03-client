@@ -21,7 +21,9 @@ import {
 import { PlusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import DashboardShell from "@/components/dashboard-shell";
+import GroupRequired from "@/components/group-required";
 import { useApi } from "@/hooks/useApi";
+import { useGroupMembership } from "@/hooks/useGroupMembership";
 import type {
 	ItemPatchDTO,
 	ItemPutDTO,
@@ -77,6 +79,7 @@ const getItemsFromList = (list: ShoppingListGetDTO | null): ShoppingListItemGetD
 
 const ShoppingListsPage: React.FC = () => {
 	const apiService = useApi();
+	const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
 	const [addForm] = Form.useForm<AddItemFormValues>();
 	const [editForm] = Form.useForm<ItemPutDTO>();
 	const [shoppingList, setShoppingList] = useState<ShoppingListGetDTO | null>(null);
@@ -138,12 +141,20 @@ const ShoppingListsPage: React.FC = () => {
 	}, [apiService]);
 
 	useEffect(() => {
+		if (!hasGroup) {
+			setIsLoadingList(false);
+			return;
+		}
 		fetchShoppingList(true);
-	}, [fetchShoppingList]);
+	}, [fetchShoppingList, hasGroup]);
 
 	useEffect(() => {
+		if (!hasGroup) {
+			setIsLoadingIngredients(false);
+			return;
+		}
 		fetchIngredients();
-	}, [fetchIngredients]);
+	}, [fetchIngredients, hasGroup]);
 
 	const markItemBusy = (itemId: number, isBusy: boolean) => {
 		setBusyItemIds((prev) => {
@@ -457,6 +468,24 @@ const ShoppingListsPage: React.FC = () => {
 	const handleAddFormVisibleChange = () => {
 		setAddFormVisible(!addFormVisible);
 	};
+
+	if (isGroupLoading) {
+		return (
+			<DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
+				<div className="flex items-center justify-center py-20">
+					<Spin size="large" />
+				</div>
+			</DashboardShell>
+		);
+	}
+
+	if (!hasGroup) {
+		return (
+			<DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
+				<GroupRequired featureName="Shopping Lists" />
+			</DashboardShell>
+		);
+	}
 
 	return (
 		<DashboardShell headerTitle="Shopping Lists" selectedMenuKey="3">
