@@ -32,7 +32,7 @@ const Register: React.FC = () => {
     } catch (error) {
       const message = error instanceof Error ? error.message : "An unexpected error occurred during registration.";
       notification.error({
-        message: "Registration Failed",
+        title: "Registration Failed",
         description: message,
         placement: "topRight",
       });

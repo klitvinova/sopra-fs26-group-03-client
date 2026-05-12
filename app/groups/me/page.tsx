@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Button, Card, Divider, Input, Modal, Space, Spin, Tag, Tooltip, Typography, message, notification } from "antd";
+import { Button, Card, Divider, Input, Modal, Space, Spin, Tag, Tooltip, Typography, notification } from "antd";
 import {
 	CopyOutlined,
 	DeleteOutlined,
@@ -27,7 +27,6 @@ export default function GroupMePage() {
 	const [group, setGroup] = useState<Group | null>(null);
 	const [currentUser, setCurrentUser] = useState<User | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
-	const [errorMessage, setErrorMessage] = useState<string>("");
 
 	const [isEditingName, setIsEditingName] = useState(false);
 	const [newGroupName, setNewGroupName] = useState("");
@@ -44,29 +43,28 @@ export default function GroupMePage() {
     const groupName = params.get("groupName") ?? "the group";
 
     if (action === "joined") {
-			notification.success({
-				message: "Joined group",
-				description: `You successfully joined ${groupName}.`,
-				placement: "topRight",
-			});
-		}
+		notification.success({
+			message: "Joined group",
+			description: `You successfully joined ${groupName}.`,
+			placement: "topRight",
+		});
+	}
 
-		if (action === "created") {
-			notification.success({
-				message: "Group created",
-				description: `Your group \"${groupName}\" is ready.`,
-				placement: "topRight",
-			});
-		}
+	if (action === "created") {
+		notification.success({
+			message: "Group created",
+			description: `Your group \"${groupName}\" is ready.`,
+			placement: "topRight",
+		});
+	}
 
-		if (action === "joined" || action === "created") {
-			window.history.replaceState({}, "", "/groups/me");
-		}
+	if (action === "joined" || action === "created") {
+		window.history.replaceState({}, "", "/groups/me");
+	}
   }, []);
 
 	const fetchData = useCallback(async () => {
 		setIsLoading(true);
-		setErrorMessage("");
 		try {
 			const [groupData, userData] = await Promise.all([
 				apiService.get<Group>("/groups/me"),
@@ -77,9 +75,17 @@ export default function GroupMePage() {
 			setNewGroupName(groupData.name || "");
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Load Group",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not load your group data.");
+				notification.error({
+					message: "Failed to Load Group",
+					description: "Could not load your group data.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsLoading(false);
@@ -93,7 +99,11 @@ export default function GroupMePage() {
 	const handleCopyInviteCode = () => {
 		if (group?.inviteCode) {
 			navigator.clipboard.writeText(group.inviteCode);
-			message.success("Invite code copied to clipboard!");
+			notification.success({
+				title: "Copied",
+				description: "Invite code copied to clipboard!",
+				placement: "topRight",
+			});
 		}
 	};
 
@@ -108,9 +118,17 @@ export default function GroupMePage() {
 			const updated = await apiService.put<Group>("/groups/me", { name: newGroupName });
 			setGroup(updated);
 			setIsEditingName(false);
-			message.success("Group renamed successfully!");
-		} catch {
-			message.error("Failed to rename group.");
+			notification.success({
+				title: "Group Renamed",
+				description: "Group renamed successfully!",
+				placement: "topRight",
+			});
+		} catch (error) {
+			notification.error({
+				title: "Failed to Rename Group",
+				description: error instanceof Error ? error.message : "Failed to rename group.",
+				placement: "topRight",
+			});
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -128,9 +146,17 @@ export default function GroupMePage() {
 				try {
 					const updated = await apiService.post<Group>("/groups/me/invite-code", {});
 					setGroup(updated);
-					message.success("Invite code regenerated!");
-				} catch {
-					message.error("Failed to regenerate code.");
+				notification.success({
+					title: "Code Regenerated",
+					description: "Invite code regenerated!",
+					placement: "topRight",
+				});
+			} catch (error) {
+				notification.error({
+					title: "Failed to Regenerate Code",
+					description: error instanceof Error ? error.message : "Failed to regenerate code.",
+					placement: "topRight",
+				});
 				}
 			},
 		});
@@ -147,10 +173,18 @@ export default function GroupMePage() {
 			onOk: async () => {
 				try {
 					await apiService.delete("/groups/me/members/me");
-					message.success("You left the group.");
+				notification.success({
+					title: "Left Group",
+					description: "You left the group.",
+					placement: "topRight",
+				});
 					router.push("/groups");
-				} catch (error) {
-					message.error(error instanceof Error ? error.message : "Failed to leave group.");
+			} catch (error) {
+				notification.error({
+					title: "Failed to Leave Group",
+					description: error instanceof Error ? error.message : "Failed to leave group.",
+					placement: "topRight",
+				});
 				}
 			},
 		});
@@ -167,10 +201,18 @@ export default function GroupMePage() {
 			onOk: async () => {
 				try {
 					await apiService.delete("/groups/me");
-					message.success("Group deleted.");
+					notification.success({
+						title: "Group Deleted",
+						description: "Group deleted.",
+						placement: "topRight",
+					});
 					router.push("/groups");
-				} catch {
-					message.error("Failed to delete group.");
+				} catch (error) {
+					notification.error({
+						title: "Failed to Delete Group",
+						description: error instanceof Error ? error.message : "Failed to delete group.",
+						placement: "topRight",
+					});
 				}
 			},
 		});
@@ -182,25 +224,18 @@ export default function GroupMePage() {
 			<div className="flex flex-1 flex-col items-center px-4 py-8">
 				<Card className="w-full max-w-2xl rounded-[2rem] border border-primary-500/20 bg-white/90 shadow-xl backdrop-blur">
 
-					{isLoading ? (
-						<div className="flex items-center justify-center py-20">
-							<Spin size="large" tip="Loading group settings..." />
-						</div>
-					) : errorMessage ? (
-						<div className="py-10 text-center">
-							<Alert message={errorMessage} showIcon type="error" />
-							<Button className="mt-4" onClick={() => router.push("/groups")}>
-								Return to Groups
-							</Button>
-						</div>
-					) : !group ? (
-						<div className="py-10 text-center">
-							<Title level={4}>No group found</Title>
-							<Button className="mt-4 pm-button" onClick={() => router.push("/groups")}>
-								Join or Create a Group
-							</Button>
-						</div>
-					) : (
+				{isLoading ? (
+					<div className="flex items-center justify-center py-20">
+						<Spin size="large" description="Loading group settings..." />
+					</div>
+				) : !group ? (
+					<div className="py-10 text-center">
+						<Title level={4}>No group found</Title>
+						<Button className="mt-4 pm-button" onClick={() => router.push("/groups")}>
+							Join or Create a Group
+						</Button>
+					</div>
+				) : (
 						<div className="space-y-6">
 							<div className="flex items-center justify-between">
 								<div className="flex-1">
