@@ -192,18 +192,27 @@ const MealPlanPage: React.FC = () => {
 					</Card>
 				</div>
 
-				<div className="w-full xl:w-96 flex flex-col gap-6">
-					<Card
-						title={
-							<div className="flex items-center gap-2">
-								<ShoppingCartOutlined className="text-orange-500" /> Outstanding Ingredients
-							</div>
-						}
-						className="shadow-sm rounded-2xl border-slate-200 sticky top-10 [&_.ant-card-head]:border-b [&_.ant-card-head]:border-slate-100 [&_.ant-card-head]:py-4"
-					>
-						<Paragraph className="text-slate-400 text-sm mb-4">
-							These items are missing from your pantry for the current month&apos;s plan.
-						</Paragraph>
+        <div className="w-full xl:w-96 flex flex-col gap-6">
+          <Card
+            title={
+              <div className="flex items-center gap-2">
+                <ShoppingCartOutlined className="text-orange-500" /> Outstanding
+                Ingredients
+              </div>
+            }
+            className="shadow-sm rounded-2xl border-slate-200 sticky top-10"
+            styles={{
+              header: {
+                borderBottom: "1px solid #f1f5f9",
+                paddingTop: 16,
+                paddingBottom: 16,
+              },
+            }}
+          >
+            <Paragraph className="text-slate-400 text-sm mb-4">
+              These items are missing from your pantry for the current
+              month&apos;s plan.
+            </Paragraph>
 
 						{loading ? (
 							<div className="flex justify-center py-8">

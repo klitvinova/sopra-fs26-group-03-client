@@ -526,7 +526,7 @@ const ShoppingListsPage: React.FC = () => {
 						<Form.Item
 							label="Category"
 							name="category"
-							rules={[{ required: true, message: "Required" }]}
+						rules={[{ required: true, message: "Required" }]}
 						>
 							<Select className="min-w-40" options={categoryOptions} placeholder="Choose" />
 						</Form.Item>

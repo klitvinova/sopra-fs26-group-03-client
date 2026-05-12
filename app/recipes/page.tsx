@@ -1,12 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Typography, Card, Tag, Spin, message, Button } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Typography, Card, Tag, Spin, message, List } from "antd";
 import DashboardShell from "@/components/dashboard-shell";
 import { useApi } from "@/hooks/useApi";
 import { Recipe, RecipePutDTO } from "@/types/recipe";
-import EditRecipeModal from "@/components/EditRecipeModal";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -73,58 +71,51 @@ const RecipesPage: React.FC = () => {
           <Spin size="large" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {recipes.map((recipe) => (
-            <Card
-              key={recipe.id}
-              title={
-                <div className="flex justify-between items-center w-full">
-                  <span>{recipe.name}</span>
-                  <Button
-                    type="text"
-                    icon={<EditOutlined />}
-                    aria-label="Edit recipe"
-                    title="Edit recipe"
-                    onClick={() => handleEditClick(recipe)}
-                    className="text-slate-400 hover:text-blue-500"
-                  />
+        <List
+          grid={{ gutter: 24, xs: 1, sm: 1, md: 2, lg: 2, xl: 3, xxl: 3 }}
+          dataSource={recipes}
+          renderItem={(recipe) => (
+            <List.Item key={recipe.id}>
+              <Card
+                title={recipe.name}
+                hoverable
+                className="h-full shadow-sm rounded-xl border-slate-200"
+                      styles={{
+                        body: {
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                        },
+                      }}
+              >
+                <Paragraph
+                  ellipsis={{ rows: 2 }}
+                  className="text-slate-500 mb-4"
+                >
+                  {recipe.description}
+                </Paragraph>
+                <div className="mt-auto">
+                  <Text strong className="block mb-2 text-slate-700">
+                    Ingredients:
+                  </Text>
+                  <div className="flex flex-wrap gap-2">
+                    {recipe.ingredients.map((ing) => (
+                      <Tag
+                        key={ing.id}
+                        color="blue"
+                        className="rounded-full px-3 border-none bg-blue-50 text-blue-600"
+                      >
+                        {ing.ingredientName}: {ing.quantity}{" "}
+                        {ing.unit?.toLowerCase() ?? "-"}
+                      </Tag>
+                    ))}
+                  </div>
                 </div>
-              }
-              hoverable
-              className="h-full overflow-hidden shadow-sm rounded-xl border-slate-200 [&_.ant-card-body]:flex [&_.ant-card-body]:h-full [&_.ant-card-body]:min-w-0 [&_.ant-card-body]:flex-col"
-            >
-              <Paragraph ellipsis={{ rows: 2 }} className="text-slate-500 mb-4">
-                {recipe.description}
-              </Paragraph>
-              <div className="flex-1 mt-auto min-w-0">
-                <Text strong className="block mb-2 text-slate-700">
-                  Ingredients:
-                </Text>
-                <div className="flex min-w-0 flex-wrap gap-2">
-                  {recipe.ingredients.map((ing) => (
-                    <Tag
-                      key={ing.id}
-                      color="blue"
-                      className="m-0 max-w-full whitespace-normal break-words rounded-full px-3 py-1 leading-5 border-none bg-blue-50 text-blue-600"
-                    >
-                      {ing.ingredientName}: {ing.quantity}{" "}
-                      {ing.unit?.toLowerCase() ?? "-"}
-                    </Tag>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            </List.Item>
+          )}
+        />
       )}
-
-      <EditRecipeModal
-        open={isEditModalOpen}
-        recipe={editingRecipe}
-        onCancel={() => setIsEditModalOpen(false)}
-        onSave={handleSaveRecipe}
-        confirmLoading={isSaving}
-      />
     </DashboardShell>
   );
 };
