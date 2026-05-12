@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Alert, Button, Card, Form, Input, Modal, Spin, message } from "antd";
+import { Button, Card, Form, Input, Modal, Spin, App } from "antd";
 import { InfoCircleOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -25,9 +25,9 @@ interface GroupGetDTO {
 const GroupsPage: React.FC = () => {
 	const apiService = useApi();
 	const router = useRouter();
+  const { notification } = App.useApp();
 	const [form] = Form.useForm<CreateGroupFormValues>();
 	const [joinForm] = Form.useForm<JoinGroupFormValues>();
-	const [errorMessage, setErrorMessage] = useState<string>("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     group: existingGroup,
@@ -37,7 +37,6 @@ const GroupsPage: React.FC = () => {
   } = useGroupMembership();
 
   const handleCreateGroup = async (values: CreateGroupFormValues) => {
-    setErrorMessage("");
     setIsSubmitting(true);
 
     try {
@@ -52,9 +51,17 @@ const GroupsPage: React.FC = () => {
       );
     } catch (error) {
       if (error instanceof Error) {
-        setErrorMessage(error.message);
+        notification.error({
+          message: "Failed to Create Group",
+          description: error.message,
+          placement: "topRight",
+        });
       } else {
-        setErrorMessage("An unknown error occurred while creating the group.");
+        notification.error({
+          message: "Failed to Create Group",
+          description: "An unknown error occurred while creating the group.",
+          placement: "topRight",
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -62,7 +69,6 @@ const GroupsPage: React.FC = () => {
   };
 
   const handleJoinGroup = async (values: JoinGroupFormValues) => {
-    setErrorMessage("");
     setIsSubmitting(true);
 
     try {
@@ -77,9 +83,17 @@ const GroupsPage: React.FC = () => {
       );
     } catch (error) {
       if (error instanceof Error) {
-        setErrorMessage(error.message);
+        notification.error({
+          message: "Failed to Join Group",
+          description: error.message,
+          placement: "topRight",
+        });
       } else {
-        setErrorMessage("An unknown error occurred while joining the group.");
+        notification.error({
+          message: "Failed to Join Group",
+          description: "An unknown error occurred while joining the group.",
+          placement: "topRight",
+        });
       }
     } finally {
       setIsSubmitting(false);
@@ -98,12 +112,18 @@ const GroupsPage: React.FC = () => {
         setIsSubmitting(true);
         try {
           await apiService.delete("/groups/me/members/me");
-          message.success("You left the group.");
+            notification.success({
+              message: "Left Group",
+              description: "You left the group.",
+              placement: "topRight",
+            });
 					await refetchMembership();
         } catch (error) {
-          message.error(
-            error instanceof Error ? error.message : "Failed to leave group.",
-          );
+            notification.error({
+              message: "Failed to Leave Group",
+              description: error instanceof Error ? error.message : "Failed to leave group.",
+              placement: "topRight",
+            });
         } finally {
           setIsSubmitting(false);
         }
@@ -168,14 +188,6 @@ const GroupsPage: React.FC = () => {
             <p className="mb-6 text-sm text-secondary-700">
               Enter a name and create your group.
             </p>
-            {errorMessage ? (
-              <Alert
-                className="mb-4"
-                message={errorMessage}
-                showIcon
-                type="error"
-              />
-            ) : null}
 
             <Form
               form={form}
@@ -216,15 +228,6 @@ const GroupsPage: React.FC = () => {
             <p className="mb-6 text-sm text-secondary-700">
               Enter your invite code to join an existing group.
             </p>
-
-            {errorMessage ? (
-              <Alert
-                className="mb-4"
-                message={errorMessage}
-                showIcon
-                type="error"
-              />
-            ) : null}
 
             <Form
               form={joinForm}

@@ -17,6 +17,7 @@ import {
 	type TableColumnsType,
 	Typography,
 	Select,
+	App,
 } from "antd";
 import { PlusCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -79,6 +80,7 @@ const getItemsFromList = (list: ShoppingListGetDTO | null): ShoppingListItemGetD
 
 const ShoppingListsPage: React.FC = () => {
 	const apiService = useApi();
+	const { notification } = App.useApp();
 	const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
 	const [addForm] = Form.useForm<AddItemFormValues>();
 	const [editForm] = Form.useForm<ItemPutDTO>();
@@ -89,8 +91,6 @@ const ShoppingListsPage: React.FC = () => {
 	const [isAdding, setIsAdding] = useState(false);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [busyItemIds, setBusyItemIds] = useState<number[]>([]);
-	const [errorMessage, setErrorMessage] = useState("");
-	const [successMessage, setSuccessMessage] = useState("");
 	const [selectedItem, setSelectedItem] = useState<ShoppingListItemGetDTO | null>(null);
 	const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -101,7 +101,6 @@ const ShoppingListsPage: React.FC = () => {
 			if (showLoader) {
 				setIsLoadingList(true);
 			}
-			setErrorMessage("");
 			try {
 				const data = await apiService.get<ShoppingListGetDTO>("/groups/me/shopping-list");
 				setShoppingList(data);
@@ -111,9 +110,17 @@ const ShoppingListsPage: React.FC = () => {
 					console.debug("No shopping list found - user likely not in a group.");
 					setShoppingList(null);
 				} else if (error instanceof Error) {
-					setErrorMessage(error.message);
+					notification.error({
+						message: "Failed to Load Shopping List",
+						description: error.message,
+						placement: "topRight",
+					});
 				} else {
-					setErrorMessage("Could not load the shopping list.");
+					notification.error({
+						message: "Failed to Load Shopping List",
+						description: "Could not load the shopping list.",
+						placement: "topRight",
+					});
 				}
 			} finally {
 				if (showLoader) {
@@ -121,7 +128,7 @@ const ShoppingListsPage: React.FC = () => {
 				}
 			}
 		},
-		[apiService],
+		[apiService, notification],
 	);
 
 	const fetchIngredients = useCallback(async () => {
@@ -131,14 +138,22 @@ const ShoppingListsPage: React.FC = () => {
 			setIngredients(data);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Load Ingredients",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not load ingredients.");
+				notification.error({
+					message: "Failed to Load Ingredients",
+					description: "Could not load ingredients.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsLoadingIngredients(false);
 		}
-	}, [apiService]);
+	}, [apiService, notification]);
 
 	useEffect(() => {
 		if (!hasGroup) {
@@ -171,12 +186,14 @@ const ShoppingListsPage: React.FC = () => {
 	const handleAddItem = async (values: AddItemFormValues) => {
 		const cleanName = values.ingredientName.trim();
 		if (!cleanName) {
-			setErrorMessage("Ingredient name must be provided.");
+			notification.error({
+				message: "Invalid Input",
+				description: "Ingredient name must be provided.",
+				placement: "topRight",
+			});
 			return;
 		}
 		const cleanDescription = (values.ingredientDescription ?? "").trim();
-		setErrorMessage("");
-		setSuccessMessage("");
 		setIsAdding(true);
 		try {
 			const cleanUnit = values.standardUnit;
@@ -204,7 +221,11 @@ const ShoppingListsPage: React.FC = () => {
 			}
 
 			if (!ingredient.id) {
-				setErrorMessage("Ingredient was created but no id was returned.");
+				notification.error({
+					message: "Failed to Add Item",
+					description: "Ingredient was created but no id was returned.",
+					placement: "topRight",
+				});
 				return;
 			}
 
@@ -221,15 +242,27 @@ const ShoppingListsPage: React.FC = () => {
 				"/groups/me/shopping-list/items",
 				shoppingPayload,
 			);
-			setSuccessMessage("Item added to shopping list.");
+			notification.success({
+				message: "Item Added",
+				description: "Item added to shopping list.",
+				placement: "topRight",
+			});
 			addForm.resetFields();
 			await fetchIngredients();
 			await fetchShoppingList(false);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Add Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not add the item.");
+				notification.error({
+					message: "Failed to Add Item",
+					description: "Could not add the item.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsAdding(false);
@@ -237,16 +270,23 @@ const ShoppingListsPage: React.FC = () => {
 	};
 
 	const loadItemById = async (itemId: number): Promise<ShoppingListItemGetDTO | null> => {
-		setErrorMessage("");
 		try {
 			return await apiService.get<ShoppingListItemGetDTO>(
 				`/groups/me/shopping-list/items/${itemId}`,
 			);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Load Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not load item details.");
+				notification.error({
+					message: "Failed to Load Item",
+					description: "Could not load item details.",
+					placement: "topRight",
+				});
 			}
 			return null;
 		}
@@ -254,7 +294,11 @@ const ShoppingListsPage: React.FC = () => {
 
 	const handleOpenEdit = async (itemId?: number) => {
 		if (!itemId) {
-			setErrorMessage("Item has no id and cannot be edited.");
+			notification.error({
+				message: "Invalid Item",
+				description: "Item has no id and cannot be edited.",
+				placement: "topRight",
+			});
 			return;
 		}
 		const item = await loadItemById(itemId);
@@ -271,22 +315,36 @@ const ShoppingListsPage: React.FC = () => {
 
 	const handleUpdateItem = async (values: ItemPutDTO) => {
 		if (!selectedItem?.id) {
-			setErrorMessage("No item selected for update.");
+			notification.error({
+				message: "Failed to Update Item",
+				description: "No item selected for update.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
-		setSuccessMessage("");
 		setIsUpdating(true);
 		try {
 			await apiService.put<void>(`/groups/me/shopping-list/items/${selectedItem.id}`, values);
-			setSuccessMessage("Item updated.");
+			notification.success({
+				message: "Item Updated",
+				description: "Item updated.",
+				placement: "topRight",
+			});
 			setIsEditOpen(false);
 			await fetchShoppingList();
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Update Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not update the item.");
+				notification.error({
+					message: "Failed to Update Item",
+					description: "Could not update the item.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsUpdating(false);
@@ -295,10 +353,13 @@ const ShoppingListsPage: React.FC = () => {
 
 	const handleToggleBought = async (item: ShoppingListItemGetDTO, isBought: boolean) => {
 		if (!item.id) {
-			setErrorMessage("Item has no id and cannot be updated.");
+			notification.error({
+				message: "Invalid Item",
+				description: "Item has no id and cannot be updated.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
 		markItemBusy(item.id, true);
 		try {
 			const payload: ItemPatchDTO = { isBought };
@@ -320,9 +381,17 @@ const ShoppingListsPage: React.FC = () => {
 			});
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Update Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not update bought status.");
+				notification.error({
+					message: "Failed to Update Item",
+					description: "Could not update bought status.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			markItemBusy(item.id, false);
@@ -331,15 +400,21 @@ const ShoppingListsPage: React.FC = () => {
 
 	const handleDeleteItem = async (itemId?: number) => {
 		if (!itemId) {
-			setErrorMessage("Item has no id and cannot be deleted.");
+			notification.error({
+				message: "Invalid Item",
+				description: "Item has no id and cannot be deleted.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
-		setSuccessMessage("");
 		markItemBusy(itemId, true);
 		try {
 			await apiService.delete<void>(`/groups/me/shopping-list/items/${itemId}`);
-			setSuccessMessage("Item deleted.");
+			notification.success({
+				message: "Item Deleted",
+				description: "Item deleted.",
+				placement: "topRight",
+			});
 			setShoppingList((prev) => {
 				if (!prev) {
 					return prev;
@@ -352,9 +427,17 @@ const ShoppingListsPage: React.FC = () => {
 			});
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Delete Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not delete the item.");
+				notification.error({
+					message: "Failed to Delete Item",
+					description: "Could not delete the item.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			markItemBusy(itemId, false);
@@ -509,17 +592,6 @@ const ShoppingListsPage: React.FC = () => {
 					</Button>
 				</div>
 			</div>
-
-			{successMessage ? (
-				<div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
-					{successMessage}
-				</div>
-			) : null}
-			{errorMessage ? (
-				<div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-					{errorMessage}
-				</div>
-			) : null}
 
 			{addFormVisible && (
 				<Card className="rounded-3xl border border-primary-200 bg-white/90 addFormVisible:bg-black">

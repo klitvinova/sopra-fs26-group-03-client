@@ -16,6 +16,7 @@ import {
 	type TableColumnsType,
 	Typography,
 	Select,
+	App,
 } from "antd";
 import {
 	CloseCircleOutlined,
@@ -256,6 +257,7 @@ const DetectedIngredientRow: React.FC<DetectedIngredientRowProps> = ({
 
 const PantryPage: React.FC = () => {
 	const apiService = useApi();
+	const { notification } = App.useApp();
 	const { hasGroup, isLoading: isGroupLoading } = useGroupMembership();
 	const [addForm] = Form.useForm<AddItemFormValues>();
 	const [editForm] = Form.useForm<PantryItemPutDTO>();
@@ -266,8 +268,6 @@ const PantryPage: React.FC = () => {
 	const [isAdding, setIsAdding] = useState(false);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [busyItemIds, setBusyItemIds] = useState<number[]>([]);
-	const [errorMessage, setErrorMessage] = useState("");
-	const [successMessage, setSuccessMessage] = useState("");
 	const [selectedItem, setSelectedItem] = useState<PantryItemGetDTO | null>(null);
 	const [isEditOpen, setIsEditOpen] = useState(false);
 	const [isDetectOpen, setIsDetectOpen] = useState(false);
@@ -285,7 +285,6 @@ const PantryPage: React.FC = () => {
 			if (showLoader) {
 				setIsLoadingList(true);
 			}
-			setErrorMessage("");
 			try {
 				const data = await apiService.get<PantryGetDTO>("/groups/me/pantry");
 				setPantry(data);
@@ -295,9 +294,17 @@ const PantryPage: React.FC = () => {
 					console.debug("No pantry found - user likely not in a group.");
 					setPantry(null);
 				} else if (error instanceof Error) {
-					setErrorMessage(error.message);
+					notification.error({
+						message: "Failed to Load Pantry",
+						description: error.message,
+						placement: "topRight",
+					});
 				} else {
-					setErrorMessage("Could not load the pantry.");
+					notification.error({
+						message: "Failed to Load Pantry",
+						description: "Could not load the pantry.",
+						placement: "topRight",
+					});
 				}
 			} finally {
 				if (showLoader) {
@@ -305,7 +312,7 @@ const PantryPage: React.FC = () => {
 				}
 			}
 		},
-		[apiService],
+		[apiService, notification],
 	);
 
 	const fetchIngredients = useCallback(async () => {
@@ -315,14 +322,22 @@ const PantryPage: React.FC = () => {
 			setIngredients(data);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Load Ingredients",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not load ingredients.");
+				notification.error({
+					message: "Failed to Load Ingredients",
+					description: "Could not load ingredients.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsLoadingIngredients(false);
 		}
-	}, [apiService]);
+	}, [apiService, notification]);
 
 	useEffect(() => {
 		if (!hasGroup) {
@@ -355,12 +370,14 @@ const PantryPage: React.FC = () => {
 	const handleAddItem = async (values: AddItemFormValues) => {
 		const cleanName = (values.ingredientName ?? "").trim();
 		if (!cleanName) {
-			setErrorMessage("Ingredient name must be provided.");
+			notification.error({
+				message: "Invalid Input",
+				description: "Ingredient name must be provided.",
+				placement: "topRight",
+			});
 			return;
 		}
 		const cleanDescription = (values.ingredientDescription ?? "").trim();
-		setErrorMessage("");
-		setSuccessMessage("");
 		setIsAdding(true);
 		try {
 			const cleanUnit = values.standardUnit;
@@ -388,7 +405,11 @@ const PantryPage: React.FC = () => {
 			}
 
 			if (!ingredient.id) {
-				setErrorMessage("Ingredient was created but no id was returned.");
+				notification.error({
+					message: "Failed to Add Item",
+					description: "Ingredient was created but no id was returned.",
+					placement: "topRight",
+				});
 				return;
 			}
 
@@ -409,15 +430,27 @@ const PantryPage: React.FC = () => {
 			};
 
 			await apiService.post<PantryItemGetDTO>("/groups/me/pantry/items", shoppingPayload);
-			setSuccessMessage("Item added to pantry.");
+			notification.success({
+				message: "Item Added",
+				description: "Item added to pantry.",
+				placement: "topRight",
+			});
 			addForm.resetFields();
 			await fetchIngredients();
 			await fetchPantry(false);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Add Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not add the item.");
+				notification.error({
+					message: "Failed to Add Item",
+					description: "Could not add the item.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsAdding(false);
@@ -425,14 +458,21 @@ const PantryPage: React.FC = () => {
 	};
 
 	const loadItemById = async (itemId: number): Promise<PantryItemGetDTO | null> => {
-		setErrorMessage("");
 		try {
 			return await apiService.get<PantryItemGetDTO>(`/groups/me/pantry/items/${itemId}`);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Load Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not load item details.");
+				notification.error({
+					message: "Failed to Load Item",
+					description: "Could not load item details.",
+					placement: "topRight",
+				});
 			}
 			return null;
 		}
@@ -440,7 +480,11 @@ const PantryPage: React.FC = () => {
 
 	const handleOpenEdit = async (itemId?: number) => {
 		if (!itemId) {
-			setErrorMessage("Item has no id and cannot be edited.");
+			notification.error({
+				message: "Invalid Item",
+				description: "Item has no id and cannot be edited.",
+				placement: "topRight",
+			});
 			return;
 		}
 		const item = await loadItemById(itemId);
@@ -457,22 +501,36 @@ const PantryPage: React.FC = () => {
 
 	const handleUpdateItem = async (values: PantryItemPutDTO) => {
 		if (!selectedItem?.id) {
-			setErrorMessage("No item selected for update.");
+			notification.error({
+				message: "Failed to Update Item",
+				description: "No item selected for update.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
-		setSuccessMessage("");
 		setIsUpdating(true);
 		try {
 			await apiService.put<void>(`/groups/me/pantry/items/${selectedItem.id}`, values);
-			setSuccessMessage("Item updated.");
+			notification.success({
+				message: "Item Updated",
+				description: "Item updated.",
+				placement: "topRight",
+			});
 			setIsEditOpen(false);
 			await fetchPantry();
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Update Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not update the item.");
+				notification.error({
+					message: "Failed to Update Item",
+					description: "Could not update the item.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsUpdating(false);
@@ -481,15 +539,21 @@ const PantryPage: React.FC = () => {
 
 	const handleDeleteItem = async (itemId?: number) => {
 		if (!itemId) {
-			setErrorMessage("Item has no id and cannot be deleted.");
+			notification.error({
+				message: "Invalid Item",
+				description: "Item has no id and cannot be deleted.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
-		setSuccessMessage("");
 		markItemBusy(itemId, true);
 		try {
 			await apiService.delete<void>(`/groups/me/pantry/items/${itemId}`);
-			setSuccessMessage("Item deleted.");
+			notification.success({
+				message: "Item Deleted",
+				description: "Item deleted.",
+				placement: "topRight",
+			});
 			setPantry((prev) => {
 				if (!prev) {
 					return prev;
@@ -499,9 +563,17 @@ const PantryPage: React.FC = () => {
 			});
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Delete Item",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not delete the item.");
+				notification.error({
+					message: "Failed to Delete Item",
+					description: "Could not delete the item.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			markItemBusy(itemId, false);
@@ -516,11 +588,13 @@ const PantryPage: React.FC = () => {
 
 	const handleDetectIngredients = async () => {
 		if (!selectedImage) {
-			setErrorMessage("Please choose an image first.");
+			notification.error({
+				message: "No Image",
+				description: "Please choose an image first.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
-		setSuccessMessage("");
 		setIsDetecting(true);
 		try {
 			const formData = new FormData();
@@ -531,13 +605,25 @@ const PantryPage: React.FC = () => {
 			);
 			setDetectedIngredients(detected ?? []);
 			if (!detected?.length) {
-				setSuccessMessage("No ingredients were detected in the image.");
+				notification.info({
+					message: "No Ingredients Detected",
+					description: "No ingredients were detected in the image.",
+					placement: "topRight",
+				});
 			}
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Detection Failed",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not detect ingredients from the image.");
+				notification.error({
+					message: "Detection Failed",
+					description: "Could not detect ingredients from the image.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsDetecting(false);
@@ -547,15 +633,21 @@ const PantryPage: React.FC = () => {
 	const handleAddDetectedIngredients = async (values: DetectedIngredientFormValues) => {
 		const ingredientsToAdd = values.ingredients ?? [];
 		if (!ingredientsToAdd.length) {
-			setErrorMessage("No detected ingredients to add.");
+			notification.error({
+				message: "No Ingredients",
+				description: "No detected ingredients to add.",
+				placement: "topRight",
+			});
 			return;
 		}
 		if (ingredientsToAdd.some((ingredient) => !ingredient.id)) {
-			setErrorMessage("Please choose an ingredient from autocomplete for each detected item.");
+			notification.error({
+				message: "Invalid Ingredients",
+				description: "Please choose an ingredient from autocomplete for each detected item.",
+				placement: "topRight",
+			});
 			return;
 		}
-		setErrorMessage("");
-		setSuccessMessage("");
 		setIsAddingDetected(true);
 		try {
 			await Promise.all(
@@ -581,17 +673,27 @@ const PantryPage: React.FC = () => {
 					return apiService.post<PantryItemGetDTO>("/groups/me/pantry/items", payload);
 				}),
 			);
-			setSuccessMessage(
-				`Added ${ingredientsToAdd.length} detected ingredient${ingredientsToAdd.length === 1 ? "" : "s"} to pantry.`,
-			);
+			notification.success({
+				message: "Ingredients Added",
+				description: `Added ${ingredientsToAdd.length} detected ingredient${ingredientsToAdd.length === 1 ? "" : "s"} to pantry.`,
+				placement: "topRight",
+			});
 			resetDetectModal();
 			await fetchIngredients();
 			await fetchPantry(false);
 		} catch (error) {
 			if (error instanceof Error) {
-				setErrorMessage(error.message);
+				notification.error({
+					message: "Failed to Add Ingredients",
+					description: error.message,
+					placement: "topRight",
+				});
 			} else {
-				setErrorMessage("Could not add detected ingredients to pantry.");
+				notification.error({
+					message: "Failed to Add Ingredients",
+					description: "Could not add detected ingredients to pantry.",
+					placement: "topRight",
+				});
 			}
 		} finally {
 			setIsAddingDetected(false);
@@ -710,17 +812,6 @@ const PantryPage: React.FC = () => {
 					</Button>
 				</div>
 			</div>
-
-			{successMessage ? (
-				<div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700">
-					{successMessage}
-				</div>
-			) : null}
-			{errorMessage ? (
-				<div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700">
-					{errorMessage}
-				</div>
-			) : null}
 
 			{addFormVisible && (
 				<Card className="mb-6 rounded-3xl border border-primary-200 bg-white/90">

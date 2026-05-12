@@ -6,7 +6,7 @@ import DashboardShell from "@/components/dashboard-shell";
 import GroupRequired from "@/components/group-required";
 import { useApi } from "@/hooks/useApi";
 import { useGroupMembership } from "@/hooks/useGroupMembership";
-import { Recipe, RecipePutDTO } from "@/types/recipe";
+import { Recipe } from "@/types/recipe";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -16,9 +16,11 @@ const RecipesPage: React.FC = () => {
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loading, setLoading] = useState(true);
 
+	/*
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingRecipe, setEditingRecipe] = useState<Recipe | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+	*/
 
   const fetchRecipes = useCallback(async () => {
     try {
@@ -41,6 +43,7 @@ const RecipesPage: React.FC = () => {
     fetchRecipes();
   }, [fetchRecipes, hasGroup]);
 
+	/*
   const handleEditClick = (recipe: Recipe) => {
     setEditingRecipe(recipe);
     setIsEditModalOpen(true);
@@ -61,6 +64,7 @@ const RecipesPage: React.FC = () => {
       setIsSaving(false);
     }
   };
+  */
 
   if (isGroupLoading) {
     return (
