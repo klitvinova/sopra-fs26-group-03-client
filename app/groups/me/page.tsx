@@ -11,6 +11,7 @@ import {
 	LogoutOutlined,
 	ReloadOutlined,
 	UserOutlined,
+	ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -322,6 +323,10 @@ export default function GroupMePage() {
 						</div>
 					)}
 				</Card>
+				<Button className={"pm-button-primary mt-5"} onClick={() => router.push("/dashboard")}>
+					<ArrowLeftOutlined></ArrowLeftOutlined>
+					Go to Dashboard
+				</Button>
 			</div>
 		</div>
 	);
