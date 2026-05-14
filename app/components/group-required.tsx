@@ -35,7 +35,6 @@ export default function GroupRequired({ featureName }: GroupRequiredProps) {
 
       joinForm.resetFields();
       const joinedName = joinedGroup.name?.trim() || "your group";
-      
       notification.success({
         message: "Joined Group",
         description: `You successfully joined ${joinedName}.`,
@@ -61,7 +60,6 @@ export default function GroupRequired({ featureName }: GroupRequiredProps) {
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-2xl text-orange-500">
           <TeamOutlined />
         </div>
-        
         <Title level={2} className="!mb-2 !text-primary-600 font-bold">
           Join a group
         </Title>
@@ -88,9 +86,9 @@ export default function GroupRequired({ featureName }: GroupRequiredProps) {
               },
             ]}
           >
-            <Input 
-              maxLength={8} 
-              placeholder="ABC1EFG2" 
+            <Input
+              maxLength={8}
+              placeholder="ABC1EFG2"
               className="!h-12 !rounded-xl !border-primary-200 focus:!border-primary-500 focus:!ring-primary-500 text-lg"
             />
           </Form.Item>
@@ -105,11 +103,10 @@ export default function GroupRequired({ featureName }: GroupRequiredProps) {
             </Button>
           </Form.Item>
         </Form>
-        
         <div className="mt-8 border-t border-slate-100 pt-6">
-          <p className="text-slate-500 text-sm mb-2">Don't have a code yet?</p>
-          <Button 
-            type="link" 
+          <p className="text-slate-500 text-sm mb-2">Don&apos;t have a code yet?</p>
+          <Button
+            type="link"
             className="text-primary-500 hover:text-primary-600 font-semibold p-0"
             onClick={() => router.push("/groups")}
           >
