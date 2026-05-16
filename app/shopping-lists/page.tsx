@@ -161,6 +161,13 @@ const ShoppingListsPage: React.FC = () => {
 			return;
 		}
 		fetchShoppingList(true);
+
+		// Polling for real-time updates
+		const interval = setInterval(() => {
+			fetchShoppingList(false);
+		}, 5000);
+
+		return () => clearInterval(interval);
 	}, [fetchShoppingList, hasGroup]);
 
 	useEffect(() => {

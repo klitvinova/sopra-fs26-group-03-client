@@ -92,6 +92,7 @@ export class ApiService {
       method: "GET",
       credentials: "include",
       headers: this.getHeaders(),
+      cache: "no-store",
     });
     return this.processResponse<T>(
       res,
