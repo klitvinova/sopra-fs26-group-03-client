@@ -114,8 +114,8 @@ reason).
 |                     | 12.05.2026 | [Frontend](https://github.com/klitvinova/sopra-fs26-group-03-client/tree/README) & [Backend](https://github.com/klitvinova/sopra-fs26-group-03-server/tree/README)       | Prototype for README            | Criteria for M4           |
 |                     | 12.05.2026 | [PR98](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/98)            | Add Tests            | Improve Test Coverage           |
 | **[@klitvinova]**   | 11.05.2026 | [PR97](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/97)            | Addressing authorisation issues            | To improve reliability and speed for registration           |
-|                     | xx.xx.xxxx | commits            | What            | Why           |
-|                     | xx.xx.xxxx | commits            | What            | Why           |
+|                     | 13.05.2026 | [833cb53](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/100/changes/8eecb534a1935ae34d5c155cf1ce0007e7091d2a)            | Backend for Real-time updates            | Real-time collaboration           |
+|                     | 14.05.2026 | [8aa2b97](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/71/changes/8aa2b97e4577786e31d6e2b03c4530abf8045b38)         | Frontend part for the Real-time updates            | Real-time collaboration           |
 
 ---
 
