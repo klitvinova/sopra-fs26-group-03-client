@@ -19,8 +19,8 @@ export const categoryEmojiMap: Record<IngredientCategory, string> = {
 };
 
 export function getCategoryEmoji(category?: IngredientCategory): string {
-	if (!category) return "🛒";
-	return categoryEmojiMap[category] || "🛒";
+	if (!category) return "❓";
+	return categoryEmojiMap[category] || "❓";
 }
 
 export function formatCategoryName(category: IngredientCategory): string {

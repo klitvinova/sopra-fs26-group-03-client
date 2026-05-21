@@ -80,6 +80,7 @@ const categoryOptions: Array<{ label: string; value: IngredientCategory }> = [
 	{ label: "🌶️ Spice", value: "SPICE" },
 	{ label: "🫗 Oil", value: "OIL" },
 	{ label: "🍯 Condiment", value: "CONDIMENT" },
+	{ label: "❓ Other", value: "OTHER" },
 ];
 
 const getItemsFromList = (list: PantryGetDTO | null): PantryItemGetDTO[] => {
