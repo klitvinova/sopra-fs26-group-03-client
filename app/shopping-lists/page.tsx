@@ -208,16 +208,23 @@ const ShoppingListsPage: React.FC = () => {
 			const cleanCategory = values.category;
 			const normalizedName = cleanName.toLowerCase();
 			let ingredient = ingredients.find(
-				(item) =>
-					(item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName &&
-					item.standardUnit === cleanUnit,
+				(item) => (item.ingredientName?.trim().toLowerCase() ?? "") === normalizedName,
 			);
+			const selectedUnit = cleanUnit ?? ingredient?.standardUnit;
+			if (!selectedUnit) {
+				notification.error({
+					message: "Invalid Input",
+					description: "Unit must be selected.",
+					placement: "topRight",
+				});
+				return;
+			}
 
 			if (!ingredient?.id) {
 				const createPayload: IngredientPostDTO = {
 					ingredientName: cleanName,
 					ingredientDescription: cleanDescription,
-					standardUnit: cleanUnit,
+					standardUnit: selectedUnit,
 					category: cleanCategory,
 				};
 
@@ -245,7 +252,8 @@ const ShoppingListsPage: React.FC = () => {
 				ingredientDescription: cleanDescription ?? ingredient.ingredientDescription,
 				quantity: values.quantity,
 				category: cleanCategory ?? ingredient.category,
-				unit: cleanUnit ?? ingredient.standardUnit,
+				unit: selectedUnit,
+				standardUnit: selectedUnit,
 			};
 
 			await apiService.post<ShoppingListItemGetDTO>(
