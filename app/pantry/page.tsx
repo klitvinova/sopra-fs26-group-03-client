@@ -45,12 +45,21 @@ interface AutoDetectedIngredientGetDTO {
 	ingredientName?: string;
 	ingredientDescription?: string;
 	category?: IngredientCategory;
-	unit?: Unit;
-	quantity?: number;
+	unit?: Unit | string;
+	standardUnit?: Unit | string;
+	quantity?: number | string;
+	quanity?: number | string;
 }
 
+type DetectedIngredientFormIngredient = Omit<AutoDetectedIngredientGetDTO, "unit" | "quantity"> & {
+	unit?: Unit;
+	quantity?: number;
+	detectedUnit?: Unit;
+	detectedQuantity?: number;
+};
+
 interface DetectedIngredientFormValues {
-	ingredients?: Array<AutoDetectedIngredientGetDTO>;
+	ingredients?: DetectedIngredientFormIngredient[];
 }
 
 const unitOptions: Array<{ label: string; value: Unit }> = [
@@ -64,6 +73,39 @@ const unitOptions: Array<{ label: string; value: Unit }> = [
 	{ label: "tsp", value: "TEASPOON" },
 	{ label: "cup", value: "CUP" },
 ];
+
+const getUnitLabel = (unit?: Unit): string =>
+	unitOptions.find((option) => option.value === unit)?.label ?? unit ?? "";
+
+const unitValueMap: Record<string, Unit> = {
+	G: "GRAM",
+	GRAM: "GRAM",
+	GRAMS: "GRAM",
+	KG: "KILOGRAM",
+	KILOGRAM: "KILOGRAM",
+	KILOGRAMS: "KILOGRAM",
+	ML: "MILLILITER",
+	MILLILITER: "MILLILITER",
+	MILLILITERS: "MILLILITER",
+	CL: "CENTILITER",
+	CENTILITER: "CENTILITER",
+	CENTILITERS: "CENTILITER",
+	L: "LITER",
+	LITER: "LITER",
+	LITERS: "LITER",
+	PIECE: "PIECE",
+	PIECES: "PIECE",
+	PC: "PIECE",
+	PCS: "PIECE",
+	TBSP: "TABLESPOON",
+	TABLESPOON: "TABLESPOON",
+	TABLESPOONS: "TABLESPOON",
+	TSP: "TEASPOON",
+	TEASPOON: "TEASPOON",
+	TEASPOONS: "TEASPOON",
+	CUP: "CUP",
+	CUPS: "CUP",
+};
 
 const categoryOptions: Array<{ label: string; value: IngredientCategory }> = [
 	{ label: "🥦 Vegetable", value: "VEGETABLE" },
@@ -98,6 +140,57 @@ const findIngredientByName = (
 		(ingredient) =>
 			(ingredient.ingredientName?.trim().toLowerCase() ?? "") === value.trim().toLowerCase(),
 	);
+
+const normalizeDetectedUnit = (unit?: Unit | string): Unit | undefined => {
+	if (!unit) {
+		return undefined;
+	}
+	return unitValueMap[unit.trim().toUpperCase()];
+};
+
+const normalizeDetectedQuantity = (
+	quantity?: number | string,
+	fallbackQuantity?: number | string,
+): number | undefined => {
+	const rawQuantity = quantity ?? fallbackQuantity;
+	const parsedQuantity = typeof rawQuantity === "string" ? Number(rawQuantity.trim()) : rawQuantity;
+
+	return typeof parsedQuantity === "number" && Number.isFinite(parsedQuantity) && parsedQuantity > 0
+		? parsedQuantity
+		: undefined;
+};
+
+const normalizeDetectedIngredients = (
+	detected: AutoDetectedIngredientGetDTO[],
+	ingredients: IngredientGetDTO[],
+): DetectedIngredientFormIngredient[] =>
+	detected.map((ingredient) => {
+		const selectedIngredient =
+			(ingredient.id ? ingredients.find((entry) => entry.id === ingredient.id) : undefined) ??
+			(ingredient.ingredientName
+				? findIngredientByName(ingredients, ingredient.ingredientName)
+				: undefined);
+		const detectedUnit = normalizeDetectedUnit(ingredient.unit);
+		const detectedQuantity = normalizeDetectedQuantity(ingredient.quantity, ingredient.quanity);
+		const resolvedUnit =
+			detectedUnit ??
+			normalizeDetectedUnit(ingredient.standardUnit) ??
+			selectedIngredient?.standardUnit;
+		const resolvedQuantity = detectedQuantity ?? 1;
+
+		return {
+			...ingredient,
+			id: ingredient.id ?? selectedIngredient?.id,
+			ingredientName: ingredient.ingredientName ?? selectedIngredient?.ingredientName,
+			ingredientDescription:
+				ingredient.ingredientDescription ?? selectedIngredient?.ingredientDescription,
+			quantity: resolvedQuantity,
+			unit: resolvedUnit,
+			detectedQuantity: resolvedQuantity,
+			detectedUnit: resolvedUnit,
+			category: ingredient.category ?? selectedIngredient?.category,
+		};
+	});
 
 interface IngredientAutocompleteInputProps {
 	ingredients: IngredientGetDTO[];
@@ -174,6 +267,30 @@ const DetectedIngredientRow: React.FC<DetectedIngredientRowProps> = ({
 	const ingredientName = Form.useWatch(["ingredients", field.name, "ingredientName"], form) as
 		| string
 		| undefined;
+	const quantity = Form.useWatch(["ingredients", field.name, "quantity"], form) as
+		| number
+		| undefined;
+	const unit = Form.useWatch(["ingredients", field.name, "unit"], form) as Unit | undefined;
+	const category = Form.useWatch(["ingredients", field.name, "category"], form) as
+		| IngredientCategory
+		| undefined;
+	const detectedQuantity = Form.useWatch(["ingredients", field.name, "detectedQuantity"], form) as
+		| number
+		| undefined;
+	const detectedUnit = Form.useWatch(["ingredients", field.name, "detectedUnit"], form) as
+		| Unit
+		| undefined;
+
+	useEffect(() => {
+		const quantityPath = ["ingredients", field.name, "quantity"];
+		const unitPath = ["ingredients", field.name, "unit"];
+		if (detectedQuantity && quantity !== detectedQuantity && !form.isFieldTouched(quantityPath)) {
+			form.setFieldValue(quantityPath, detectedQuantity);
+		}
+		if (detectedUnit && unit !== detectedUnit && !form.isFieldTouched(unitPath)) {
+			form.setFieldValue(unitPath, detectedUnit);
+		}
+	}, [detectedQuantity, detectedUnit, field.name, form, quantity, unit]);
 
 	const handleIngredientSelect = (ingredient: IngredientGetDTO, value: string) => {
 		if (!ingredient.id) {
@@ -184,10 +301,10 @@ const DetectedIngredientRow: React.FC<DetectedIngredientRowProps> = ({
 			["ingredients", field.name, "ingredientName"],
 			ingredient.ingredientName ?? value,
 		);
-		if (ingredient.standardUnit?.trim()) {
+		if (!detectedUnit && !unit && ingredient.standardUnit?.trim()) {
 			form.setFieldValue(["ingredients", field.name, "unit"], ingredient.standardUnit);
 		}
-		if (ingredient.category) {
+		if (!category && ingredient.category) {
 			form.setFieldValue(["ingredients", field.name, "category"], ingredient.category);
 		}
 	};
@@ -196,13 +313,34 @@ const DetectedIngredientRow: React.FC<DetectedIngredientRowProps> = ({
 		form.setFieldValue(["ingredients", field.name, "ingredientName"], value);
 		const selectedIngredient = findIngredientByName(ingredients, value);
 		form.setFieldValue(["ingredients", field.name, "id"], selectedIngredient?.id);
-		form.setFieldValue(["ingredients", field.name, "unit"], selectedIngredient?.standardUnit);
-		form.setFieldValue(["ingredients", field.name, "category"], selectedIngredient?.category);
+		if (!detectedUnit && !unit && selectedIngredient?.standardUnit) {
+			form.setFieldValue(["ingredients", field.name, "unit"], selectedIngredient.standardUnit);
+		}
+		if (!category && selectedIngredient?.category) {
+			form.setFieldValue(["ingredients", field.name, "category"], selectedIngredient.category);
+		}
 	};
 
 	return (
-		<Card key={field.key} size="small" className="rounded-2xl">
+		<Card
+			key={field.key}
+			size="small"
+			className="rounded-2xl"
+			title={
+				quantity || unit ? (
+					<span className="text-sm font-medium text-slate-700">
+						Detected: {quantity ?? "-"} {getUnitLabel(unit)}
+					</span>
+				) : null
+			}
+		>
 			<Form.Item name={[field.name, "id"]} hidden>
+				<Input />
+			</Form.Item>
+			<Form.Item name={[field.name, "detectedQuantity"]} hidden>
+				<InputNumber />
+			</Form.Item>
+			<Form.Item name={[field.name, "detectedUnit"]} hidden>
 				<Input />
 			</Form.Item>
 			<Form.Item
