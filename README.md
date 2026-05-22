@@ -1,66 +1,102 @@
-# Platemate
-## Introduction:
-The ultimate companion for modern home cooks and shared households:
-- Manage your pantry stock in real-time
-- Generate shared shopping lists automatically
-- Coordinate meal plans with your group
-- Reduce food waste and save money
+# PlateMate — Client
 
-## Technologies
-- Next.js
-- React
-- TypeScript
-- TailwindCSS
-- Ant Design
-- ESLint
-- Prettier
+PlateMate is the Next.js & React frontend client for the PlateMate application, designed to simplify pantry management, meal planning, recipe discovery, cooking, and grocery shopping for shared households and families.
 
-## High-level components
-How are they correlated? Reference the main class, file, or function in the README text
-with a link.
+---
 
-### [Dashboard-Shell](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/components/dashboard-shell.tsx)
-This compoment is used on almost all pages to render a dashboard on the left side and let the user change between different pages. This component is like a NavigationBar for our website. Compontent with the Dashboard Shell contain this component and reference their name & number to highlight the current option.
+## 📖 Introduction
+This repository contains the mobile-friendly web interface for PlateMate. It provides household members with a responsive and collaborative dashboard to:
+- Coordinate meals dynamically.
+- View and update the shared pantry in real-time.
+- Check items off the joint shopping list while shopping.
+- Scan physical, handwritten grocery lists and instantly digitize them.
 
-### [Pantry Page](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/pantry/page.tsx)
-This page is an important part to our website. It saves which item a user currently has and let's them add new ones. Highlights are: 
-- Users can add items based on a picture of a real shopping list. This functions uses the Google Vision API.
-- Items that a user marks as bought in the shopping list are moved automatically into his pantry
-- Adding a new item fetches ingredients from the backend to suggest autocomplete options. The server offers some common options (e.g. Tomato) and if a user enters a new ingredient it's saved and will be suggested next time.
+---
 
-### [Dashboard Page](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/dashboard/page.tsx)
-This page shows an overview to the user and uses multiple endpoints for this. It shows today's menu and your shopping list. This page is the landing page for new users.
+## 🛠️ Technologies Used
+- **Framework**: Next.js (App Router)
+- **UI Library**: React, Ant Design (component framework)
+- **Styling**: TailwindCSS (responsive layouts), Vanilla CSS
+- **Programming Language**: TypeScript
+- **Quality & Linting**: ESLint, Prettier
+- **Network Client**: Fetch API with custom request wrappers
 
-### Required Group ([Page](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/components/group-required.tsx) & [Hook](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/hooks/useGroupMembership.ts))
-New users can't use most of our website. To inform the user every pages shows a [group required page](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/components/group-required.tsx), if a user is not part of a group. To check this, pages use the [groupMembership Hook](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/hooks/useGroupMembership.ts).
+---
 
-### [Meal Plan Page](https://github.com/klitvinova/sopra-fs26-group-03-client/blob/main/app/meal-plan/page.tsx)
-This page allows user to plan meals based on predefined recipes. The user sees what's already inside his pantry and can choose (**Feature TODO**) if he still want's to add them to his shopping list. The user can then see his planned meal in the calendar view, or today's meal(s) on the dashboard page.
+## 🧩 High-Level Components
+The client interface is structured around several modular pages and components:
 
-## Launch & Deployment
-have to take to get started with your application. What commands are required to build and
-run your project locally? How can they run the tests? Do you have external dependencies
-or a database that needs to be running? How can they do releases?
+1. **[Dashboard-Shell](app/components/dashboard-shell.tsx)**:
+   The primary layout wrapper. It acts as the navigation hub, displaying the sidebar menu and tracking the current active route to highlight chosen menu options across different pages.
+
+2. **[Pantry Page](app/pantry/page.tsx)**:
+   Allows users to view, add, and update food items in their pantry. It includes autocomplete suggestions powered by the backend ingredients API, automatic inventory deductions, and triggers image detection to parse handwritten grocery lists using OCR.
+
+3. **[Dashboard Page](app/dashboard/page.tsx)**:
+   The central landing hub for users, displaying today's scheduled meals and a summary of items currently on the shopping list.
+
+4. **[Required Group Components](app/components/group-required.tsx) & [Hook](app/hooks/useGroupMembership.ts)**:
+   Restricts page access for users who haven't joined or created a household group. The custom `useGroupMembership` hook checks the group state, prompting the user to create or join a household before letting them access pantry, list, or meal planning functionalities.
+
+5. **[Meal Plan Page](app/meal-plan/page.tsx)**:
+   Displays a calendar view where household members can schedule recipes. It shows the calculated missing ingredients for the planned meals and allows syncing them to the group's shopping list.
+
+---
+
+## 🚀 Launch & Development
+To run the PlateMate client application locally:
+
+### 1. Installation
+Install the project dependencies using npm:
+```bash
 npm install
-next build
+```
 
-## Illustrations: In your client repository, briefly describe and illustrate the main user flow(s) of your interface. How does it work (without going into too much detail)? Feel free to
-include a few screenshots of your application.
-**TODO**
+### 2. Configuration
+Create a `.env.local` file in the root directory (if required) to set the backend base URL. (By default, the client points to the local backend port `8080` or the configured production gateway).
 
+### 3. Local Development Commands
+- **Run the Dev Server** (starts on `http://localhost:3000`):
+  ```bash
+  npm run dev
+  ```
+- **Build for Production**:
+  ```bash
+  npm run build
+  ```
+- **Start Production Server**:
+  ```bash
+  npm start
+  ```
+- **Lint Code**:
+  ```bash
+  npm run lint
+  ```
 
-## Roadmap
-- Event Group Management to temporarily add members to a group to organize a event with them. E.g. You could invite people over and plan a BBQ with this app.
-- Cost Calculating for shopping lists for users to plan their budget. This should calculate based on common prices, but let users set their own.
-- Let users add own recipes and save them to shop for them in the future.
-- Let users scan barcodes to add ingredients to their pantry.
+---
 
-## Authors and acknowledgment.
-Marc Honegger & Karina Litvinova
+## 📱 Illustrations: Core User Flows
+1. **Household Onboarding**: Upon first login, users are greeted with the `GroupRequired` screen. They can input a group token to join a flat/family space, or generate a new group to invite members.
+2. **Pantry Scan & Management**: Users scan physical lists using their phone camera. The scanned list is parsed, and detected items are previewed for confirmation before being saved to the pantry.
+3. **Meal Planning to Shopping List Sync**: Members schedule meals on the calendar. If ingredients are missing, they appear in the "Outstanding Ingredients" sidebar. Clicking "Add to Shopping List" appends them to the shopping list.
+4. **Real-Time Group Shopping**: Users check off items at the grocery store. The checked-off items disappear from the shopping list and are instantly added to the pantry. Polling updates this in real-time for all household members.
 
-We also want to thank our former teammates: Dan Zolotov, Ceyda B. Dag & Kishore Sivapathasundaram
+---
 
-## License: Say how your project is licensed (see License guide3).
-MIT License
+## 🗺️ Roadmap
+- **Real-Time Meal Voting**: A voting system in the planning page to let group members vote on what they want to eat.
+- **AI Pantry Recipe Suggestions**: Recommend recipes to prepare based on what is close to expiring in the pantry.
+- **Expense tracker**: Integrate split-bill functionality to track grocery shopping expenses across roommates.
+
+---
+
+## 👥 Authors & Acknowledgments
+- **Marc Honegger** & **Karina Litvinova**
+- Former Teammates: *Dan Zolotov, Ceyda B. Dag & Kishore Sivapathasundaram*
+
+---
+
+## 📄 License
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for more details.
 
 Copyright (c) 2026 Marc Honegger & Karina Litvinova
