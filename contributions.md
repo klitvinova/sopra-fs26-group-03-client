@@ -122,9 +122,9 @@ reason).
 
 | **Student**         | **Date**   | **Link to Commit** | **Description** | **Relevance** |
 | ------------------- | ---------- | ------------------ | --------------- | ------------- |
-| **[@MarcHonegger]** | xx.xx.xxxx | commits            | What            | Why           |
-|                     | xx.xx.xxxx | commits            | What            | Why           |
-|                     | xx.xx.xxxx | commits            | What            | Why           |
+| **[@MarcHonegger]** | 21.05.2026 | [PR77](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/77) & [PR106](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/106)           | Fix API Auto-Detect Feature            | API feature was broken           |
+|                     | 21.05.2026 | [PR76](https://github.com/klitvinova/sopra-fs26-group-03-client/pull/76) & [PR105](https://github.com/klitvinova/sopra-fs26-group-03-server/pull/105)            | Fix & Improvements for ingredients            | Duplicate of ingredients & many UI improvements           |
+|                     | 22.05.2026 | [9c502fd](https://github.com/klitvinova/sopra-fs26-group-03-client/compare/06e1bf5b2658389c7d94b4d5e7871c40c8677029...9c502fd81d71d11c31a7074d6aeb2000791d23b5)            | Better wording            | Wording was misleading           |
 | **[@klitvinova]**   | xx.xx.xxxx | commits            | What            | Why           |
 |                     | xx.xx.xxxx | commits            | What            | Why           |
 |                     | xx.xx.xxxx | commits            | What            | Why           |
